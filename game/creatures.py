@@ -11,7 +11,8 @@ class Creatures:
         self.screen_size = screen_size
 
 
-        self.creature_create()
+        #self.creature_create()
+
     def creature_create(self):
         ### For every set of 20 spaces
         for i in range(-self.size[0]/2, self.size[0]/2, 20):

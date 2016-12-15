@@ -17,7 +17,7 @@ class Main:
 
         self.world_size = [800, 800]
 
-        self.creatures = creatures.Creatures(None,None,None,None)
+
 
 
 
@@ -25,6 +25,8 @@ class Main:
 
         self.gameframe = GameFrame(self, self.root)
         self.world = world.World(self, self.world_size, 0, 1.5, self.gameframe, self.size)
+        self.creatures = creatures.Creatures(self.world_size, self, self.gameframe, self.size)
+
 
 
 

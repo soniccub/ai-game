@@ -1,2 +1,2 @@
 print("blocks imported")
-import brainblock
+import blocks.brainblock
