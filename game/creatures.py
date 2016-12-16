@@ -12,7 +12,7 @@ class Creatures:
 
 
         #self.creature_create()
-        self.creatures_list.append(Creature([0,0]))
+        self.creatures_list.append(Creature(self.frame,[0, 0]))
 
     def creature_create(self):
 
@@ -43,8 +43,8 @@ class Creatures:
 
 
 class Creature:
-    def __init__(self, position, blueprint=[]):
-
+    def __init__(self, frame, position, blueprint=[]):
+        self.frame = frame
         self.position = position
         self.blueprint = blueprint
         self.block_size = [10, 10]
@@ -52,6 +52,7 @@ class Creature:
 
         if len(blueprint) == 0:
             self.blueprint = Blueprint(self)
+        self.creature_creation()
 
 
 
@@ -64,50 +65,41 @@ class Creature:
             self.blocks.append(self.block_create(i[0], coords, [i[1][0], i[1][1]]))
 
     def block_create(self, block_str, coord, coord_on_creature):
+        print(block_str)
         if block_str == "GenericBlock":
-            new_block = bodyblock.GenericBlock(self, coord, coord_on_creature)
+            new_block = blocks.bodyblock.GenericBlock(self, coord, coord_on_creature)
 
         elif block_str == "MoveBlock":
-            new_block = bodyblock.MoveBlock(self, coord, coord_on_creature)
+            new_block = blocks.bodyblock.MoveBlock(self, coord, coord_on_creature)
 
         elif block_str == "StorageBlock":
-            new_block = bodyblock.StorageBlock(self, coord, coord_on_creature)
+            new_block = blocks.bodyblock.StorageBlock(self, coord, coord_on_creature)
 
         elif block_str == "VineBlock":
 
 
-            new_block = bodyblock.VineBlock(self, coord, coord_on_creature, self.blueprint.vineprint)
+            new_block = blocks.bodyblock.VineBlock(self, coord, coord_on_creature, self.blueprint.vineprint)
 
 
         elif block_str == "ReproductionBlock":
 
-            new_block = bodyblock.ReproductionBlock(self, coord, coord_on_creature, self.blueprint.blocks)
+            new_block = blocks.bodyblock.ReproductionBlock(self, coord, coord_on_creature, self.blueprint.blocks)
 
 
         elif block_str == "BrainBlock":
-            pass
+            new_block = blocks.bodyblock.GenericBlock(self, coord, coord_on_creature)
+
+
+
+
+        elif block_str == "GeneralSensor":
+            new_block = blocks.bodyblock.GenericBlock(self, coord, coord_on_creature)
+
+
 
         return new_block
 
-    def draw(self):
 
-
-        for block_number in range(self.blocks):
-            for block in self.blocks[block_number]:
-                block[2].position
-                ### In blocks first and second position are coords while third is the object
-
-                if block[2].type == "body":
-
-                    temp_cord = self.frame.coord_switch(block[2].position)
-                    if self.frame.position_on_screen(temp_cord, self.block_size):
-                        self.frame.frame.create_rectangle(temp_cord[0] - self.block_size[0] / 2,
-                                                          temp_cord[1] - self.block_size[1] / 2,
-                                                          temp_cord[0] + self.block_size[0] / 2,
-                                                          temp_cord[1] + self.block_size[1] / 2,
-                                                          fill=block[2].color)
-                    else:
-                        pass
 
 
 
@@ -142,6 +134,24 @@ class Creature:
             pass
 
         return new_block
+
+    def draw(self):
+
+        for block in self.blocks:
+
+            if block.type == "body":
+
+                temp_cord = self.frame.coord_switch(block.position)
+                print(block.position)
+                if self.frame.position_on_screen(temp_cord, self.block_size):
+                    self.frame.frame.create_rectangle(temp_cord[0] - self.block_size[0] / 2,
+                                                      temp_cord[1] - self.block_size[1] / 2,
+                                                      temp_cord[0] + self.block_size[0] / 2,
+                                                      temp_cord[1] + self.block_size[1] / 2,
+                                                        fill=block.color)
+                else:
+                    print(1)
+                    pass
 
 
 

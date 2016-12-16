@@ -86,7 +86,7 @@ class GameFrame:
         return tkinter_handler.if_on_screen(position, size, self.center_screen_position, self.size)
 
     def coord_switch(self, position):
-        return tkinter_handler.coord_switch(position,self.center_screen_position, self.size)
+        return tkinter_handler.coord_switch(position, self.center_screen_position, self.size)
 
 
 

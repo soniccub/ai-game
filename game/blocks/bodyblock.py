@@ -23,8 +23,7 @@ class GenericBlock:
         self.creature.food -= 0.1
 
 
-    def draw(self):
-        pass
+
 
 
 
@@ -48,8 +47,7 @@ class MoveBlock:
         else:
             self.creature.food -= 1
 
-    def draw(self):
-        pass
+
 
 
 
@@ -67,8 +65,7 @@ class StorageBlock:
     def upkeep(self):
         self.creature.food -= 0.5
 
-    def draw(self):
-        pass
+
 
 
 ### Vine blocks repeat a certian confirgeration of blocks over and over again, includes itself
@@ -102,8 +99,7 @@ class GrowthBlock:
     def upkeep(self):
         self.creature.food -= 3
 
-    def draw(self):
-        pass
+
 ### Once enough food is avialble makes a creature with blueprint of creature with it
 ### Can create growth and vine blocks for max reproductive effect
 ### new brain_block and network, must learn
@@ -119,8 +115,6 @@ class ReproductionBlock:
     def upkeep(self):
         self.creature.food -= 6
 
-    def draw(self):
-        pass
 
 
 
