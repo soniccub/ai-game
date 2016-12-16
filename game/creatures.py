@@ -12,6 +12,7 @@ class Creatures:
 
 
         #self.creature_create()
+        self.creatures_list.append(Creature([0,0]))
 
     def creature_create(self):
 
@@ -30,7 +31,8 @@ class Creatures:
         pass
 
     def draw(self):
-        pass
+        for creature in self.creatures_list:
+            creature.draw()
 
     def creature_creation(self, position):
         self.creatures_list.append(Creature(position))
@@ -41,17 +43,51 @@ class Creatures:
 
 
 class Creature:
-    def __init__(self, position, blueprint, creature_size):
+    def __init__(self, position, blueprint=[]):
 
         self.position = position
         self.blueprint = blueprint
         self.block_size = [10, 10]
         self.blocks = []
-        self.creature_size = creature_size
+
+        if len(blueprint) == 0:
+            self.blueprint = Blueprint(self)
 
 
 
 
+    def creature_creation(self):
+        for i in self.blueprint.blocks:
+
+            coords = [i[1][0] * self.block_size[0] + self.position[0],
+                      i[1][0] * self.block_size[1] + self.position[1]]
+            self.blocks.append(self.block_create(i[0], coords, [i[1][0], i[1][1]]))
+
+    def block_create(self, block_str, coord, coord_on_creature):
+        if block_str == "GenericBlock":
+            new_block = bodyblock.GenericBlock(self, coord, coord_on_creature)
+
+        elif block_str == "MoveBlock":
+            new_block = bodyblock.MoveBlock(self, coord, coord_on_creature)
+
+        elif block_str == "StorageBlock":
+            new_block = bodyblock.StorageBlock(self, coord, coord_on_creature)
+
+        elif block_str == "VineBlock":
+
+
+            new_block = bodyblock.VineBlock(self, coord, coord_on_creature, self.blueprint.vineprint)
+
+
+        elif block_str == "ReproductionBlock":
+
+            new_block = bodyblock.ReproductionBlock(self, coord, coord_on_creature, self.blueprint.blocks)
+
+
+        elif block_str == "BrainBlock":
+            pass
+
+        return new_block
 
     def draw(self):
 
@@ -75,71 +111,7 @@ class Creature:
 
 
 
-
-
-
-
-
-class Blueprint:
-
-    def __init__(self, size, creature, old_print=[]):
-        ### blueprint of creature
-        ### Creature is blocks within blueprint/ if growth or vine block can grow into these blocks
-        self.center = [0, 0]
-        self.creature = creature
-
-        if len(old_print) == 0:
-            ### This creates a new blueprint from scratch, reserved for new creatures when creating world
-            self.create_print()
-        else:
-            self.old_print_change()
-
-    def create_print(self):
-        self.size = [3, 3]
-        self.blocks = []
-        ### Takes every coord in the new 3x3 creature to be created and makes a generic block at that position
-
-        for i in range(-1, 1):
-            for ii in range(-1, 1):
-                block_position = [i, ii]
-                self.blocks.append(bodyblock.GenericBlock(self.creature, [block_position[0] * self.creature.block_size[0] + self.creature.position[0],
-                           block_position[1] * self.creature.block_size[1] + self.creature.position[1]], block_position))
-
-                ### Next comes changing the type of block...... was going to just have 9 of those above but this isnt too much better
-
-            ### This changes the type of block into the default creature configuration
-        for i in range(self.blocks):
-            if self.blocks[i].position == [-1, -1] or self.blocks[i].position == [1, -1]:
-                self.blocks[i] = self.block_change(self.blocks[i], "MoveBlock")
-
-            elif self.blocks[i].position == [0, 0]:
-                pass
-                self.blocks[i] = self.block_change(self.blocks[i], "BrainBlock")
-
-            if self.blocks[i].position == [0, -1]:
-                self.blocks[i] = self.block_change(self.blocks[i], "ReproductionBlock")
-
-            ### Note add sensor blocks when code done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def block_change(block, new_block_string):
+    def block_change(self ,block, new_block_string):
         if new_block_string == "GenericBlock":
             new_block = bodyblock.GenericBlock(block.creature, block.position, block.coords)
 
@@ -150,24 +122,86 @@ class Blueprint:
             new_block = bodyblock.StorageBlock(block.creature, block.position, block.coords)
 
         if new_block_string == "VineBlock":
-
             try:
+
                 new_block = bodyblock.VineBlock(block.creature, block.position, block.coords, block.blueprint)
             except NameError:
-                new_block = bodyblock.VineBlock(block.creature, block.position, block.coords, block.creature.blueprint)
+                new_block = bodyblock.VineBlock(block.creature, block.position, block.coords,
+                                                        block.creature.blueprint)
+
 
         if new_block_string == "ReproductionBlock":
 
             try:
                 new_block = bodyblock.ReproductionBlock(block.creature, block.position, block.coords, block.blueprint)
             except NameError:
-                new_block = bodyblock.ReproductionBlock(block.creature, block.position, block.coords, block.creature.blueprint)
+                new_block = bodyblock.ReproductionBlock(block.creature, block.position, block.coords,
+                                                        block.creature.blueprint)
 
         if new_block_string == "BrainBlock":
             pass
 
-
         return new_block
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Blueprint:
+
+    def __init__(self, creature, old_print=[]):
+
+        ### blueprint of creature
+        ### Creature is blocks within blueprint/ if growth or vine block can grow into these blocks
+
+        self.center = [0, 0]
+        self.creature = creature
+
+        if len(old_print) == 0:
+
+            ### This creates a new blueprint from scratch, reserved for new creatures when creating world
+
+            self.create_print()
+        else:
+            self.old_print_change()
+        self.vineprint = list(self.blocks)
+
+
+    def create_print(self):
+        self.size = [3, 3]
+        self.blocks = []
+        ### Takes every coord in the new 3x3 creature to be created and makes a generic block at that position
+
+        self.blocks.append(["GeneralSensor", [-1, 1]])
+        self.blocks.append(["GeneralSensor", [1, 1]])
+
+        self.blocks.append(["MoveBlock", [-1, -1]])
+        self.blocks.append(["MoveBlock", [1, -1]])
+
+        self.blocks.append(["BrainBlock", [0, 0]])
+        self.blocks.append(["ReproductionBlock", [0, -1]])
+
+        self.blocks.append(["GenericBlock", [-1, 0]])
+        self.blocks.append(["GenericBlock", [1, 0]])
+        self.blocks.append(["GenericBlock", [0, 1]])
+
 
 
 
