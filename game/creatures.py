@@ -1,4 +1,5 @@
 import blocks
+import math
 
 class Creatures:
 
@@ -28,7 +29,8 @@ class Creatures:
 
 
     def tick(self):
-        pass
+        for i in self.creatures_list:
+            i.activate([[0, 0], [0, 0], [0, 0], [0, 0]])
 
     def draw(self):
         for creature in self.creatures_list:
@@ -42,17 +44,43 @@ class Creatures:
 
 
 
+
+
+
+
+
+
 class Creature:
     def __init__(self, frame, position, blueprint=[]):
+        self.food = 1000
         self.frame = frame
         self.position = position
         self.blueprint = blueprint
         self.block_size = [10, 10]
         self.blocks = []
+        self.direction = 0
+        self.block_turn_ratio = 1/2
+
+        self.block_power_ratio = 10
 
         if len(blueprint) == 0:
             self.blueprint = Blueprint(self)
         self.creature_creation()
+        self.active_block_list = []
+        for i in self.blocks:
+            if i.activatable:
+                self.active_block_list.append(i)
+
+        for i in self.active_block_list:
+            i.activate([10, 10])
+
+
+    def activate(self, power_list):
+        ### Each run of the neural network will return a list of "powers"
+        ### The power is the strength of each activation in the list of possible activatible objects
+        for i in range(len(self.active_block_list)):
+            self.active_block_list[i].activate(power_list[i])
+
 
 
 
@@ -61,11 +89,11 @@ class Creature:
         for i in self.blueprint.blocks:
 
             coords = [i[1][0] * self.block_size[0] + self.position[0],
-                      i[1][0] * self.block_size[1] + self.position[1]]
+                      i[1][1] * self.block_size[1] + self.position[1]]
+
             self.blocks.append(self.block_create(i[0], coords, [i[1][0], i[1][1]]))
 
     def block_create(self, block_str, coord, coord_on_creature):
-        print(block_str)
         if block_str == "GenericBlock":
             new_block = blocks.bodyblock.GenericBlock(self, coord, coord_on_creature)
 
@@ -135,23 +163,111 @@ class Creature:
 
         return new_block
 
+
+
+    def move_direction(self, position, power):
+        position_list = []
+        for i in self.blocks:
+            position_list.append(i.coords)
+        x_average = 0
+        y_average = 0
+        for i in position_list:
+            x_average += i[0]
+            y_average += i[1]
+
+        x_average /= len(position_list)
+        y_average /= len(position_list)
+
+        direction = math.atan(abs(y_average+position[1])/abs(x_average+position[0])) * 180/math.pi
+
+        if position[0] > 0 and position[1] > 0:
+            pass
+        elif position[0] < 0 and position[1] > 0:
+            direction += 90
+        elif position[0] < 0 and position[1] < 0:
+            direction += 180
+
+        elif position[0] > 0 and position[1] < 0:
+            direction += 270
+
+
+        return direction
+
+    def update_position(self, position, strength):
+        move_distance = len(self.blocks)/self.block_power_ratio
+        direction_change = self.move_direction(position, strength)
+        self.direction_update(direction_change, strength)
+
+
+        changeX = move_distance * math.cos(self.direction) * strength[0] + math.cos(self.direction) * strength[1]
+        changeY = move_distance * math.sin(self.direction) * strength[0] + math.sin(self.direction) * strength[1]
+
+        for i in self.blocks:
+
+            i.position[0] += changeX
+            i.position[1] += changeY
+
+    def direction_update(self, direction_change, power):
+
+        if direction_change % 270 != direction_change or direction_change < 90:
+            if direction_change > 270:
+                direction_change -= 360
+
+            self.direction -= direction_change / 180 * math.sqrt(power[0] ** 2 + power[1] ** 2)
+
+
+
+
+
+
+        elif direction_change > 90 and direction_change < 180:
+
+            self.direction += direction_change / 180 * math.sqrt(power[0] ** 2 + power[1] ** 2)
+
+
+
+            #self.direction += len(self.blocks)/self.block_turn_ratio * direction_change
+            self.direction %= 360
+        print(direction_change, self.direction)
+
     def draw(self):
 
         for block in self.blocks:
 
             if block.type == "body":
 
+                block.position[0] += (math.cos(self.direction * math.pi/180) -
+                                      math.cos(block.last_direction * math.pi / 180)) * block.coords[0] * self.block_size[0]
+                block.position[1] += (math.sin(self.direction * math.pi/180) -
+                                      math.sin(block.last_direction * math.pi / 180)) * block.coords[1] * self.block_size[1]
+                block.last_direction = self.direction
                 temp_cord = self.frame.coord_switch(block.position)
-                print(block.position)
+
+
                 if self.frame.position_on_screen(temp_cord, self.block_size):
-                    self.frame.frame.create_rectangle(temp_cord[0] - self.block_size[0] / 2,
-                                                      temp_cord[1] - self.block_size[1] / 2,
-                                                      temp_cord[0] + self.block_size[0] / 2,
-                                                      temp_cord[1] + self.block_size[1] / 2,
-                                                        fill=block.color)
+                    self.frame.frame.create_polygon(temp_cord[0] - self.block_size[0] / 2,
+                                                    temp_cord[1] - self.block_size[1] / 2,
+
+                                                    temp_cord[0] + self.block_size[0] / 2,
+                                                    temp_cord[1] - self.block_size[1] / 2,
+
+                                                    temp_cord[0] + self.block_size[0] / 2,
+                                                    temp_cord[1] + self.block_size[1] / 2,
+
+                                                    temp_cord[0] - self.block_size[0] / 2,
+                                                    temp_cord[1] + self.block_size[1] / 2,
+                                                    fill=block.color)
                 else:
-                    print(1)
+
                     pass
+
+
+
+
+
+
+
+
 
 
 

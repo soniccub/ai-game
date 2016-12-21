@@ -7,7 +7,7 @@ import tkinter_handler
 
 class Main:
 
-    def __init__(self, size=[800,800]):
+    def __init__(self, size=[1100, 850]):
         self.size = size
         self.root = Tk()
         self.root.bind()
@@ -99,11 +99,11 @@ main = Main()
 
 def leftKey(event):
 
-
     main.gameframe.center_screen_position[0] -= 100
 
 
 def rightKey(event):
+
     main.gameframe.center_screen_position[0] += 100
 
 

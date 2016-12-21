@@ -26,7 +26,8 @@ def if_on_screen(position, object_size, center_screen_position, screen_size):
 ### For coords written in relation to the world, not the screen
 def coord_switch(coords, screen_position, screen_size):
 
-    new_coords = [(coords[0] + screen_position[0]) + screen_size[0]/2, screen_size[1]-(coords[1] - screen_position[1])- screen_size[1]/2]
+    new_coords = [(coords[0] + screen_position[0]) + screen_size[0]/2,
+                  screen_size[1]-(coords[1] - screen_position[1]) - screen_size[1]/2]
 
 
     return new_coords
