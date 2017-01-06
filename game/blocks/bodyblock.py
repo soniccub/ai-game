@@ -1,4 +1,4 @@
-
+import math
 ### Upkeep is max 10 min 0.1
 ### Numbers picked on whim, calibrated soon?
 
@@ -14,15 +14,33 @@ class GenericBlock:
     color = "#d2b48c"
     type = "body"
     activatable = False
+
     def __init__(self, creature, block_position, blueprint_coords):
+
         self.creature = creature
         self.position = block_position
         self.coords = blueprint_coords
-        self.last_direction = self.creature.direction
+        if self.coords[0] == 0:
+            if self.coords[1] > 0:
+                self.direction = 90
+            else:
+                self.direction = 270
 
+        elif self.coords[1] == 0:
+            if self.coords[0] > 0:
+                self.direction = 0
+            else: self.direction = 180
+        else:
+            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
+            if self.coords[0] < 0:
+                self.direction += 180
+            print(self.direction, self.coords)
+        self.y_edges = []
+        self.x_edges = []
 
 
     def upkeep(self):
+
         self.creature.food -= 0.1
 
     def activate(self, blank):
@@ -37,7 +55,23 @@ class StorageBlock:
         self.creature = creature
         self.position = block_position
         self.coords = blueprint_coords
-        self.last_direction = self.creature.direction
+        if self.coords[0] == 0:
+            if self.coords[1] > 0:
+                self.direction = 90
+            else:
+                self.direction = 270
+
+        elif self.coords[1] == 0:
+            if self.coords[0] > 0:
+                self.direction = 0
+            else:
+                self.direction = 180
+        else:
+            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
+            if self.coords[0] < 0:
+                self.direction += 180
+        self.y_edges = []
+        self.x_edges = []
 
     def upkeep(self):
         self.creature.food -= 0.5
@@ -59,7 +93,25 @@ class VineBlock:
         self.creature = creature
         self.position = block_position
         self.coords = block_position
-        self.last_direction = self.creature.direction
+        if self.coords[0] == 0:
+            if self.coords[1] > 0:
+                self.direction = 90
+            else:
+                self.direction = 270
+
+        elif self.coords[1] == 0:
+            if self.coords[0] > 0:
+                self.direction = 0
+            else:
+                self.direction = 180
+        else:
+            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
+            if self.coords[0] < 0:
+                self.direction += 180
+
+        self.y_edges = []
+        self.x_edges = []
+
 
 
     def upkeep(self):
@@ -78,7 +130,23 @@ class GrowthBlock:
         self.blueprint = blueprint
         self.position = block_position
         self.coords = block_position
-        self.last_direction = self.creature.direction
+        if self.coords[0] == 0:
+            if self.coords[1] > 0:
+                self.direction = 90
+            else:
+                self.direction = 270
+        elif self.coords[1] == 0:
+            if self.coords[0] > 0:
+                self.direction = 0
+            else:
+                self.direction = 180
+        else:
+            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
+            if self.coords[0] < 0:
+                self.direction += 180
+
+        self.y_edges = []
+        self.x_edges = []
 
     def upkeep(self):
         self.creature.food -= 3
@@ -97,8 +165,24 @@ class ReproductionBlock:
         self.blueprint = blueprint
         self.position = block_position
         self.coords = blueprint_coords
-        self.last_direction = self.creature.direction
-        print(0, self.coords)
+        if self.coords[0] == 0:
+            if self.coords[1] > 0:
+                self.direction = 90
+            else:
+                self.direction = 270
+
+        elif self.coords[1] == 0:
+            if self.coords[0] > 0:
+                self.direction = 0
+            else:
+                self.direction = 180
+        else:
+            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
+            if self.coords[0] < 0:
+                self.direction += 180
+
+        self.y_edges = []
+        self.x_edges = []
 
     def upkeep(self):
         self.creature.food -= 6
@@ -112,12 +196,28 @@ class MoveBlock:
     activatable = True
 
     def __init__(self, creature, block_position, blueprint_coords):
+
         self.creature = creature
-        self.last_direction = self.creature.direction
+
 
         self.position = block_position
         self.coords = blueprint_coords
-
+        self.y_edges = []
+        self.x_edges = []
+        if self.coords[0] == 0:
+            if self.coords[1] > 0:
+                self.direction = 90
+            else:
+                self.direction = 270
+        elif self.coords[1] == 0:
+            if self.coords[0] > 0:
+                self.direction = 0
+            else:
+                self.direction = 180
+        else:
+            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
+            if self.coords[0] < 0:
+                self.direction += 180
 
     def upkeep(self):
         self.creature.food -= 2
@@ -125,6 +225,9 @@ class MoveBlock:
     def activate(self, power):
         self.creature.food -= power[0] + power[1]
         self.creature.update_position(self.coords, power)
+        #print(self.position, 10)
+
+
 
 
 

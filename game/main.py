@@ -88,6 +88,8 @@ class GameFrame:
     def coord_switch(self, position):
         return tkinter_handler.coord_switch(position, self.center_screen_position, self.size)
 
+    def draw_shape(self, points):
+        points = []
 
 
 
@@ -100,7 +102,7 @@ main = Main()
 def leftKey(event):
 
     main.gameframe.center_screen_position[0] -= 100
-
+    main.creatures.creatures_list[0].direction_change(10)
 
 def rightKey(event):
 

@@ -35,10 +35,11 @@ class World:
         self.set_position(self.obstacles_amount)
 
     def set_position(self, amount):
+        return
         print(0)
         for positionX in range(-int(self.size[0]/2), int(self.size[0]/2), 10):
             for positionY in range(-int(self.size[1]/2), int(self.size[1]/2), 10):
-                if  random.randrange(100) > 100-amount:
+                if random.randrange(100) > 100-amount:
                     self.spawn_object(positionX, positionY)
 
         for i in range(-int(self.size[0]/2), int(self.size[0]/2), 10):

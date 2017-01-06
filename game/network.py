@@ -7,17 +7,6 @@ import math
 ### When a sensor activates or changes the network is run again
 ### brain control center has options to change sensor settings on old networks
 ### Settings only changed if world has adding during life and not normal evolution
-counter = 0
-
-
-
-
-
-
-
-
-
-
 
 
 

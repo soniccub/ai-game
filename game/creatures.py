@@ -1,6 +1,6 @@
 import blocks
 import math
-
+import random
 class Creatures:
 
     def __init__(self, size, main, frame, screen_size):
@@ -58,10 +58,9 @@ class Creature:
         self.blueprint = blueprint
         self.block_size = [10, 10]
         self.blocks = []
-        self.direction = 0
-        self.block_turn_ratio = 1/2
 
-        self.block_power_ratio = 10
+        self.direction = 90
+
 
         if len(blueprint) == 0:
             self.blueprint = Blueprint(self)
@@ -73,7 +72,7 @@ class Creature:
 
         for i in self.active_block_list:
             i.activate([10, 10])
-
+        self.block_edges_create()
 
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
@@ -127,11 +126,7 @@ class Creature:
 
         return new_block
 
-
-
-
-
-    def block_change(self ,block, new_block_string):
+    def block_change(self, block, new_block_string):
         if new_block_string == "GenericBlock":
             new_block = bodyblock.GenericBlock(block.creature, block.position, block.coords)
 
@@ -163,121 +158,75 @@ class Creature:
 
         return new_block
 
-
-
     def move_direction(self, position, power):
-        position_list = []
-        for i in self.blocks:
-            position_list.append(i.coords)
-        x_average = 0
-        y_average = 0
-        for i in position_list:
-            x_average += i[0]
-            y_average += i[1]
-
-        x_average /= len(position_list)
-        y_average /= len(position_list)
-
-        direction = math.atan(abs(y_average+position[1])/abs(x_average+position[0])) * 180/math.pi
-
-        if position[0] > 0 and position[1] > 0:
-            pass
-        elif position[0] < 0 and position[1] > 0:
-            direction += 90
-        elif position[0] < 0 and position[1] < 0:
-            direction += 180
-
-        elif position[0] > 0 and position[1] < 0:
-            direction += 270
-
-
-        return direction
+        return math.atan(position[1]/position[0]) * 180/math.pi * power
 
     def update_position(self, position, strength):
-        move_distance = len(self.blocks)/self.block_power_ratio
+        #move_distance = len(self.blocks)/self.block_power_ratio
         direction_change = self.move_direction(position, strength)
-        self.direction_update(direction_change, strength)
+        #self.direction_update(direction_change, strength)
 
-
-        changeX = move_distance * math.cos(self.direction) * strength[0] + math.cos(self.direction) * strength[1]
-        changeY = move_distance * math.sin(self.direction) * strength[0] + math.sin(self.direction) * strength[1]
+        changeX = 0
+        changeY = 0
 
         for i in self.blocks:
 
             i.position[0] += changeX
             i.position[1] += changeY
 
-    def direction_update(self, direction_change, power):
-
-        if direction_change % 270 != direction_change or direction_change < 90:
-            if direction_change > 270:
-                direction_change -= 360
-
-            self.direction -= direction_change / 180 * math.sqrt(power[0] ** 2 + power[1] ** 2)
+    def direction_change(self, direction):
 
 
+        for block in self.blocks:
+            block.last_direction = block.direction
+            block.direction += direction
+            block.direction %= 360
 
 
+            for i in range(len(block.x_edges)):
+
+                block.x_edges[i] = math.cos(i * math.pi/2 + math.pi/4) * self.block_size[0] / math.sqrt(2) + self.position[0] \
+                                    + math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
 
 
-        elif direction_change > 90 and direction_change < 180:
+                block.y_edges[i] = math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1] \
+                    + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
 
-            self.direction += direction_change / 180 * math.sqrt(power[0] ** 2 + power[1] ** 2)
+    def block_edges_create(self):
+        for block in self.blocks:
+            for i in range(4):
+
+                block.x_edges.append(math.cos(i * math.pi/2 + math.pi/4) * self.block_size[0] / math.sqrt(2) + self.position[0]
+                    + math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
+                block.y_edges.append(
+                    math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
+                    + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
+
+    def position_update(self, new_position):
+        for block in self.blocks:
+            for i in block.x_edges:
+                i += new_position[0] - block.position[0]
+
+            for i in block.y_edges:
+                i += new_position[1] - block.position[1]
+            block.position = new_position
 
 
+    def move(self, power, block):
+        self.direction_change(self.move_direction(block.coords, power))
 
-            #self.direction += len(self.blocks)/self.block_turn_ratio * direction_change
-            self.direction %= 360
-        print(direction_change, self.direction)
 
     def draw(self):
 
         for block in self.blocks:
 
             if block.type == "body":
+                edge_list = []
+                for i in range(len(block.x_edges)):
+                    #print(i, block.x_edges[i], block.color, block.x_edges)
+                    edge_list.append(self.frame.coord_switch([block.x_edges[i], block.y_edges[i]]))
 
-                block.position[0] += (math.cos(self.direction * math.pi/180) -
-                                      math.cos(block.last_direction * math.pi / 180)) * block.coords[0] * self.block_size[0]
-                block.position[1] += (math.sin(self.direction * math.pi/180) -
-                                      math.sin(block.last_direction * math.pi / 180)) * block.coords[1] * self.block_size[1]
-                block.last_direction = self.direction
-                temp_cord = self.frame.coord_switch(block.position)
-
-
-                if self.frame.position_on_screen(temp_cord, self.block_size):
-                    self.frame.frame.create_polygon(temp_cord[0] - self.block_size[0] / 2,
-                                                    temp_cord[1] - self.block_size[1] / 2,
-
-                                                    temp_cord[0] + self.block_size[0] / 2,
-                                                    temp_cord[1] - self.block_size[1] / 2,
-
-                                                    temp_cord[0] + self.block_size[0] / 2,
-                                                    temp_cord[1] + self.block_size[1] / 2,
-
-                                                    temp_cord[0] - self.block_size[0] / 2,
-                                                    temp_cord[1] + self.block_size[1] / 2,
-                                                    fill=block.color)
-                else:
-
-                    pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                self.frame.frame.create_polygon(edge_list[0],edge_list[1], edge_list[2],edge_list[3], fill=block.color)
 
 
 
@@ -296,7 +245,8 @@ class Blueprint:
 
         ### blueprint of creature
         ### Creature is blocks within blueprint/ if growth or vine block can grow into these blocks
-
+        self.name_list = ["Generic_Block", "MoveBlock", "StorageBlock", "ReproductionBlock", "MoveBlock",
+                          "GeneralSensor"]
         self.center = [0, 0]
         self.creature = creature
 
@@ -333,6 +283,50 @@ class Blueprint:
 
 
     def old_print_change(self):
-        pass
+        change_chance = 3
+        new_block_chance = 2
+        # 2%
+        for i in self.blocks:
+            if random.randrange(100) < self.change_chance:
+                self.name_change(i)
+        for i in self.block_edges_open():
+            if random.randrange(100) < self.new_block_chance:
+                self.new_block(i)
+
+
+
+    def new_block(self, coords):
+        self.blocks.append(random.choice(self.name_list), coords)
+
+    def name_change(self, block):
+
+        block[0] = random.choice(self.name_list)
+
+
+
+
+    def block_edges_open(self):
+        block_edges = []
+        for i in self.blocks:
+            for ii in range(4):
+                if ii == 1:
+                    block_edges.append(i[1][0] + 1, i[1][1])
+                elif ii == 2:
+                    block_edges.append(i[1][0] - 1, i[1][1])
+                elif ii == 3:
+                    block_edges.append(i[1][0], i[1][1] + 1)
+                elif ii == 4:
+                    block_edges.append(i[1][0] + 1, i[1][1] - 1)
+        temp_edge = []
+        for i in range(len(block_edges)):
+            for ii in self.blocks:
+                if not block_edges[i] == ii[1]:
+                    temp_edge.append(block_edges[i])
+        block_edges = temp_edge
+
+
+
+        return block_edges
+
 
 
