@@ -223,8 +223,8 @@ class MoveBlock:
         self.creature.food -= 2
 
     def activate(self, power):
-        self.creature.food -= power[0] + power[1]
-        self.creature.update_position(self.coords, power)
+        self.creature.food -= power
+        self.creature.move(self.coords, power)
         #print(self.position, 10)
 
 

@@ -30,7 +30,7 @@ class Creatures:
 
     def tick(self):
         for i in self.creatures_list:
-            i.activate([[0, 0], [0, 0], [0, 0], [0, 0]])
+            i.activate([0, 0, 0, 0])
 
     def draw(self):
         for creature in self.creatures_list:
@@ -58,6 +58,7 @@ class Creature:
         self.blueprint = blueprint
         self.block_size = [10, 10]
         self.blocks = []
+        self.power_move_ratio = 10
 
         self.direction = 90
 
@@ -71,7 +72,7 @@ class Creature:
                 self.active_block_list.append(i)
 
         for i in self.active_block_list:
-            i.activate([10, 10])
+            i.activate(0)
         self.block_edges_create()
 
     def activate(self, power_list):
@@ -161,18 +162,7 @@ class Creature:
     def move_direction(self, position, power):
         return math.atan(position[1]/position[0]) * 180/math.pi * power
 
-    def update_position(self, position, strength):
-        #move_distance = len(self.blocks)/self.block_power_ratio
-        direction_change = self.move_direction(position, strength)
-        #self.direction_update(direction_change, strength)
 
-        changeX = 0
-        changeY = 0
-
-        for i in self.blocks:
-
-            i.position[0] += changeX
-            i.position[1] += changeY
 
     def direction_change(self, direction):
 
@@ -202,7 +192,8 @@ class Creature:
                     math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
                     + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
 
-    def position_update(self, new_position):
+    def position_update(self, position_change):
+        new_position = [position_change[0] + self.position[0], position_change[1] + self.position[1]]
         for block in self.blocks:
             for i in block.x_edges:
                 i += new_position[0] - block.position[0]
@@ -212,8 +203,14 @@ class Creature:
             block.position = new_position
 
 
-    def move(self, power, block):
-        self.direction_change(self.move_direction(block.coords, power))
+    def move(self, coords, power):
+        self.direction_change(self.move_direction(coords, power))
+
+        self.position_update([math.cos(self.direction) * power * self.power_move_ratio / len(self.blocks),
+                              math.sin(self.direction) * power * self.power_move_ratio / len(self.blocks)])
+
+
+
 
 
     def draw(self):
