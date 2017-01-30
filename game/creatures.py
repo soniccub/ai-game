@@ -13,7 +13,7 @@ class Creatures:
 
 
         #self.creature_create()
-        self.creatures_list.append(Creature(self.frame,[0, 0]))
+        self.creatures_list.append(Creature(self.frame, [0, 0], self))
 
     def creature_create(self):
 
@@ -30,7 +30,7 @@ class Creatures:
 
     def tick(self):
         for i in self.creatures_list:
-            i.activate([10, 10, 10, 10])
+            i.activate([1, 1, 1, 1])
 
 
     def draw(self):
@@ -38,7 +38,7 @@ class Creatures:
             creature.draw()
 
     def creature_creation(self, position):
-        self.creatures_list.append(Creature(position))
+        self.creatures_list.append(Creature(self.frame, position, self))
 
 
 
@@ -52,7 +52,7 @@ class Creatures:
 
 
 class Creature:
-    def __init__(self, frame, position, blueprint=[]):
+    def __init__(self, frame, position, creatures, blueprint=[]):
         self.food = 1000
         self.frame = frame
         self.position = position
@@ -61,7 +61,7 @@ class Creature:
         self.blocks = []
         self.power_move_ratio = 1
         self.turn_power_ratio = 1/360
-
+        self.creatures = creatures
         self.direction = 90
 
 
@@ -162,11 +162,12 @@ class Creature:
 
     def direction_change(self, direction):
 
-
+        self.direction -=direction
+        self.direction %= 360
         for block in self.blocks:
             block.last_direction = block.direction
-            block.direction += direction
-            block.direction %= 360
+            #block.direction += direction
+            #block.direction %= 360
 
 
             for i in range(len(block.x_edges)):
@@ -205,12 +206,10 @@ class Creature:
         self.direction_change(self.move_direction(coords, power))
 
         self.position_update([math.cos(self.direction * math.pi / 180 - math.pi/2) * power * self.power_move_ratio / len(self.blocks),
-                              math.sin(self.direction * math.pi / 180 - math.pi/2) * power * self.power_move_ratio / len(self.blocks)])
+                              math.sin(self.direction * math.pi / 180 + math.pi/2) * power * self.power_move_ratio / len(self.blocks)])
 
 
-        print([math.cos(self.direction * math.pi / 180) * power * self.power_move_ratio / len(self.blocks),
-                              math.sin(self.direction * math.pi / 180) * power * self.power_move_ratio / len(self.blocks)])
-        print(self.direction)
+
 
 
 

@@ -20,7 +20,7 @@ class Network():
 
         self.length = length
 
-        ### [beginning,,end,length]
+        ### [beginning,end,length]
         self.size = [self.inputs, self.outputs, self.length]
         self.neurons = []
         self.network_creation()
@@ -33,12 +33,15 @@ class Network():
         new_next_row = []
 
 
+
+
         for i in next_row:
             temp_input.append(0)
 
         for i in range(len(next_row)):
             single_input = current_row[i].input(inputs[i])
             temp_input = [x + y for x, y in zip(temp_input, single_input)]
+
 
         ### To get the list of neurons for next run-through
         for i in next_row[0].connections:
@@ -55,7 +58,7 @@ class Network():
         temp_list.append([])
         ### Initializes last neurons
         for i in range(len(self.size[1])):
-            temp_list[0].append(Neuron(self,[i, self.length], [None], True))
+            temp_list[0].append(Neuron(self, [i, self.length], [None], True))
 
         ### Defines all middle ones, ignores first two and last
         i = self.size[2]
@@ -107,32 +110,35 @@ class Neuron():
         self.connections = connections
 
 
+        self.last_input = 0
         if not output:
             self.set_wieghts()
         self.network = network
+
     def set_wieghts(self):
         self.connection_weights = []
         for i in range(len(self.connections)):
-            self.connection_weights.append([self.connections[i],random.randrange(200)/100])
+            self.connection_weights.append([self.connections[i], random.randrange(200)/100])
             print(self.connection_weights)
-
-
-
 
     def input(self, input):
         output = []
         if not self.output:
             for i in self.connections:
                 output.append([i[1] * input])
+
         else:
-
-
-
-
             self.out_put(input)
+        self.last_input = input
+        return output
 
     def out_put(self, output):
         self.network.output(output)
+
+    def change_weights(self):
+        for i in range(self.connections):
+            self.connections[i][1] += random.randrange(-5, 5, 1) / 100
+
 
 
 

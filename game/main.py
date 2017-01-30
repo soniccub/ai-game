@@ -1,5 +1,9 @@
 ### This is the main game file
 
+#import gc
+#gc.enable()
+
+
 from tkinter import *
 import world
 import creatures
@@ -26,6 +30,12 @@ class Main:
         self.gameframe = GameFrame(self, self.root)
         self.world = world.World(self, self.world_size, 0, 1.5, self.gameframe, self.size)
         self.creatures = creatures.Creatures(self.world_size, self, self.gameframe, self.size)
+
+
+
+
+
+        self.brain_size_food_ratio = 0.25
 
 
 

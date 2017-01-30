@@ -20,21 +20,7 @@ class GenericBlock:
         self.creature = creature
         self.position = block_position
         self.coords = blueprint_coords
-        if self.coords[0] == 0:
-            if self.coords[1] > 0:
-                self.direction = 90
-            else:
-                self.direction = 270
-
-        elif self.coords[1] == 0:
-            if self.coords[0] > 0:
-                self.direction = 0
-            else: self.direction = 180
-        else:
-            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
-            if self.coords[0] < 0:
-                self.direction += 180
-            print(self.direction, self.coords)
+        self.direction = angle_measure(self.coords)
         self.y_edges = []
         self.x_edges = []
 
@@ -55,21 +41,7 @@ class StorageBlock:
         self.creature = creature
         self.position = block_position
         self.coords = blueprint_coords
-        if self.coords[0] == 0:
-            if self.coords[1] > 0:
-                self.direction = 90
-            else:
-                self.direction = 270
-
-        elif self.coords[1] == 0:
-            if self.coords[0] > 0:
-                self.direction = 0
-            else:
-                self.direction = 180
-        else:
-            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
-            if self.coords[0] < 0:
-                self.direction += 180
+        self.direction = angle_measure(self.coords)
         self.y_edges = []
         self.x_edges = []
 
@@ -93,21 +65,7 @@ class VineBlock:
         self.creature = creature
         self.position = block_position
         self.coords = block_position
-        if self.coords[0] == 0:
-            if self.coords[1] > 0:
-                self.direction = 90
-            else:
-                self.direction = 270
-
-        elif self.coords[1] == 0:
-            if self.coords[0] > 0:
-                self.direction = 0
-            else:
-                self.direction = 180
-        else:
-            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
-            if self.coords[0] < 0:
-                self.direction += 180
+        self.direction = angle_measure(self.coords)
 
         self.y_edges = []
         self.x_edges = []
@@ -130,20 +88,7 @@ class GrowthBlock:
         self.blueprint = blueprint
         self.position = block_position
         self.coords = block_position
-        if self.coords[0] == 0:
-            if self.coords[1] > 0:
-                self.direction = 90
-            else:
-                self.direction = 270
-        elif self.coords[1] == 0:
-            if self.coords[0] > 0:
-                self.direction = 0
-            else:
-                self.direction = 180
-        else:
-            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
-            if self.coords[0] < 0:
-                self.direction += 180
+        self.direction = angle_measure(self.coords)
 
         self.y_edges = []
         self.x_edges = []
@@ -165,21 +110,7 @@ class ReproductionBlock:
         self.blueprint = blueprint
         self.position = block_position
         self.coords = blueprint_coords
-        if self.coords[0] == 0:
-            if self.coords[1] > 0:
-                self.direction = 90
-            else:
-                self.direction = 270
-
-        elif self.coords[1] == 0:
-            if self.coords[0] > 0:
-                self.direction = 0
-            else:
-                self.direction = 180
-        else:
-            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
-            if self.coords[0] < 0:
-                self.direction += 180
+        self.direction = angle_measure(self.coords)
 
         self.y_edges = []
         self.x_edges = []
@@ -204,20 +135,7 @@ class MoveBlock:
         self.coords = blueprint_coords
         self.y_edges = []
         self.x_edges = []
-        if self.coords[0] == 0:
-            if self.coords[1] > 0:
-                self.direction = 90
-            else:
-                self.direction = 270
-        elif self.coords[1] == 0:
-            if self.coords[0] > 0:
-                self.direction = 0
-            else:
-                self.direction = 180
-        else:
-            self.direction = math.atan(self.coords[1] / self.coords[0]) * 180 / math.pi
-            if self.coords[0] < 0:
-                self.direction += 180
+        self.direction = angle_measure(self.coords)
 
     def upkeep(self):
         self.creature.food -= 2
@@ -229,5 +147,30 @@ class MoveBlock:
 
 
 
+
+
+
+
+def angle_measure(coords):
+    coords = [coords[1], coords[0]]
+    ### Lazy af
+    if coords[0] == 0:
+        if coords[1] > 0:
+            direction = 90
+        else:
+            direction = 270
+
+    elif coords[1] == 0:
+        if coords[0] > 0:
+            direction = 0
+        else:
+            direction = 180
+    else:
+        direction = math.atan(coords[1] / coords[0]) * 180 / math.pi
+        if coords[0] < 0:
+            direction += 180
+
+
+    return direction
 
 

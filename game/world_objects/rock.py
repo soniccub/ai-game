@@ -38,7 +38,7 @@ class Rock:
             if self.frame.position_on_screen(temp_cord, self.size):
 
 
-                self.frame.frame.create_rectangle(temp_cord[0]-self.size[0]/2,temp_cord[1]-self.size[1]/2,temp_cord[0]+self.size[0]/2,temp_cord[1] + self.size[1]/2, fill=self.color)
+                self.frame.frame.create_rectangle(temp_cord[0]-self.size[0]/2, temp_cord[1]-self.size[1]/2, temp_cord[0]+self.size[0]/2, temp_cord[1] + self.size[1]/2, fill=self.color)
 
 
 
