@@ -5,27 +5,33 @@ import math
 
 
 class Sensor:
-
-    def __init__(self, creature, coords, direction, type):
-
+    activatable = False
+    def __init__(self, creature,position, coords, type, sense_detail):
+        self.sense_detail = sense_detail ### Every level gives one extra neuron to the brain for that eye range of 1-10
         self.creature = creature
         self.world = self.creature.creatures.main.world
         self.coords = coords
-        self.direction = direction
+        self.position = position
+        self.direction = angle_measure(coords) + self.creature.direction
+
         self.type = type
         self.type_set(self.type)
+        self.max_sense_distance = 10 * sense_detail
+
+        self.y_edges = []
+        self.x_edges = []
 
     def sense(self):
         object_list = []
         if self.sensor.world_object_see:
-            object_list.append(self.object_sense())
+            object_list.append(self.world_object_sense())
 
 
 
         return object_list
 
 
-    def object_sense(self):
+    def world_object_sense(self):
         direction_facing = self.direction + self.creature.direction
 
         objects_around = self.world.space_near([self.creature.position[0] + math.cos(
@@ -76,8 +82,15 @@ class Sensor:
 
 
 
+
 class GeneralSensor:
+    color = "#0000FF"
     world_object_see = True
+    creature_see = True
+    food_see = True
+    type = "Sensor"
+
+
     def __init__(self):
         pass
     def objects_to_input(self, objects_seen):
@@ -87,18 +100,31 @@ class GeneralSensor:
 
 
 class CreatureSensor:
+    color = "#FF0000"
     world_object_see = False
+    creature_see = True
+    food_see = False
+    type = "Sensor"
+
     def __init__(self):
         pass
 
 
 class ObstacleSensor:
+    color = "#00FF00"
     world_object_see = True
+    creature_see = True
+    food_see = False
+    type = "Sensor"
     def __init__(self):
         pass
 
 class FoodSensor:
+    color = "#FFA500"
     world_object_see = False
+    creature_see = False
+    food_see = True
+    type = "Sensor"
     def __init__(self):
         pass
 

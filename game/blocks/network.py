@@ -17,8 +17,11 @@ class Network():
         self.upper = upper
         self.inputs = inputs
         self.outputs = outputs
+        self.y_edges = []
+        self.x_edges = []
 
         self.length = length
+
 
         ### [beginning,end,length]
         self.size = [self.inputs, self.outputs, self.length]
@@ -50,7 +53,23 @@ class Network():
         self.output_list = []
 
 
-        return self.signal()
+        return self.signal(next_row, new_next_row, temp_input)
+
+
+
+    def run_network(self, inputs):
+
+
+        return self.signal(self.neurons[0],self.neurons[1], inputs)
+
+
+    def output(self, output):
+        self.output_list.append(output)
+
+        if len(self.output_list) == len(self.outputs):
+
+
+            return self.output_list
 
     def network_creation(self):
         ### Size 0 in inputs
@@ -64,43 +83,20 @@ class Network():
         i = self.size[2]
         while i > 1:
 
-
             temp_list.append([])
 
             for ii in self.size[1]:
-                #print(temp_list)
-                temp_list[self.length-i+1].append(Neuron(self, [ii, i], temp_list[self.length-i]))
+                # print(temp_list)
+                temp_list[self.length - i + 1].append(Neuron(self, [ii, i], temp_list[self.length - i]))
             i -= 1
         ### The first row, which may have a different size than the others.
         for i in self.size[0]:
-            temp_list[1].append(Neuron(self,[i, 0], [temp_list[len(temp_list)-1]]))
+            temp_list[1].append(Neuron(self, [i, 0], [temp_list[len(temp_list) - 1]]))
 
-        i = len(temp_list)-1
+        i = len(temp_list) - 1
         while i > -1:
             self.neurons.append(temp_list[i])
             i += -1
-
-
-
-
-
-
-    def run_network(self, inputs):
-
-
-        return self.signal(self.neurons[0],self.neurons[1], inputs)
-
-
-
-    def output(self, output):
-        self.output_list.append(output)
-
-        if len(self.output_list) == len(self.outputs):
-
-
-            return self.output_list
-
-
 
 
 class Neuron():
@@ -142,4 +138,3 @@ class Neuron():
 
 
 
-object = Network([2,2,2,2,2],[2,2,2,2,2],20)

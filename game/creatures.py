@@ -63,6 +63,10 @@ class Creature:
         self.turn_power_ratio = 1/360
         self.creatures = creatures
         self.direction = 90
+        self.sensors = []
+        self.sense_detail = 10
+        self.action_blocks = []
+
 
 
         if len(blueprint) == 0:
@@ -77,11 +81,13 @@ class Creature:
             i.activate(10)
         self.block_edges_create()
 
+
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
         ### The power is the strength of each activation in the list of possible activatible objects
         for i in range(len(self.active_block_list)):
             self.active_block_list[i].activate(power_list[i])
+
 
     def creature_creation(self):
         for i in self.blueprint.blocks:
@@ -89,20 +95,26 @@ class Creature:
             coords = [i[1][0] * self.block_size[0] + self.position[0],
                       i[1][1] * self.block_size[1] + self.position[1]]
 
-            self.blocks.append(self.block_create(i[0], coords, [i[1][0], i[1][1]]))
+
+            print(i[1],1111)
+            self.blocks.append(self.block_create(i[0], coords, i[1]))
+
 
     def block_create(self, block_str, coord, coord_on_creature):
         if block_str == "GenericBlock":
             new_block = blocks.bodyblock.GenericBlock(self, coord, coord_on_creature)
 
         elif block_str == "MoveBlock":
+
             new_block = blocks.bodyblock.MoveBlock(self, coord, coord_on_creature)
+            self.action_blocks.append(new_block)
 
         elif block_str == "StorageBlock":
+
             new_block = blocks.bodyblock.StorageBlock(self, coord, coord_on_creature)
 
-        elif block_str == "VineBlock":
 
+        elif block_str == "VineBlock":
 
             new_block = blocks.bodyblock.VineBlock(self, coord, coord_on_creature, self.blueprint.vineprint)
 
@@ -110,20 +122,24 @@ class Creature:
         elif block_str == "ReproductionBlock":
 
             new_block = blocks.bodyblock.ReproductionBlock(self, coord, coord_on_creature, self.blueprint.blocks)
+            self.action_blocks.append(new_block)
 
 
         elif block_str == "BrainBlock":
-            new_block = blocks.bodyblock.GenericBlock(self, coord, coord_on_creature)
+            print(coord)
+            new_block = blocks.brainblock.BrainBlock(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
 
 
 
 
-        elif block_str == "GeneralSensor":
-            new_block = blocks.bodyblock.GenericBlock(self, coord, coord_on_creature)
+        elif block_str == "GeneralSensor" or block_str == "CreatureSensor" or block_str == "ObstacleSensor" or block_str == "FoodSensor":
+            new_block = blocks.sensors.Sensor(self, coord, coord_on_creature, block_str, self.sense_detail)
+            self.sensors.append(new_block)
 
 
 
         return new_block
+
 
     def block_change(self, block, new_block_string):
         if new_block_string == "GenericBlock":
@@ -157,8 +173,10 @@ class Creature:
 
         return new_block
 
+
     def move_direction(self, position, power):
         return math.atan(position[1]/position[0]) * 180/math.pi * power * self.turn_power_ratio
+
 
     def direction_change(self, direction):
 
@@ -179,6 +197,7 @@ class Creature:
                 block.y_edges[i] = math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1] \
                     + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
 
+
     def block_edges_create(self):
         for block in self.blocks:
             for i in range(4):
@@ -189,6 +208,7 @@ class Creature:
                     math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
                     + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
 
+
     def position_update(self, position_change):
         for block in range(len(self.blocks)):
             self.blocks[block].position[0] += position_change[0]
@@ -198,10 +218,6 @@ class Creature:
         self.position[1] += position_change[1]
 
 
-
-
-
-
     def move(self, coords, power):
         self.direction_change(self.move_direction(coords, power))
 
@@ -209,27 +225,16 @@ class Creature:
                               math.sin(self.direction * math.pi / 180 + math.pi/2) * power * self.power_move_ratio / len(self.blocks)])
 
 
-
-
-
-
     def draw(self):
 
         for block in self.blocks:
 
-            if block.type == "body":
+            if block.type == "body" or block.type == "brain":
                 edge_list = []
                 for i in range(len(block.x_edges)):
-                    #print(i, block.x_edges[i], block.color, block.x_edges)
                     edge_list.append(self.frame.coord_switch([block.x_edges[i], block.y_edges[i]]))
 
-                self.frame.frame.create_polygon(edge_list[0],edge_list[1], edge_list[2],edge_list[3], fill=block.color)
-
-
-
-
-
-
+            self.frame.frame.create_polygon(edge_list[0], edge_list[1], edge_list[2], edge_list[3], fill=block.color)
 
 
 
@@ -253,6 +258,8 @@ class Blueprint:
 
             self.create_print()
         else:
+
+
             self.old_print_change()
         self.vineprint = list(self.blocks)
 
@@ -265,10 +272,11 @@ class Blueprint:
         self.blocks.append(["GeneralSensor", [-1, 1]])
         self.blocks.append(["GeneralSensor", [1, 1]])
 
+
         self.blocks.append(["MoveBlock", [-1, -1]])
         self.blocks.append(["MoveBlock", [1, -1]])
 
-        self.blocks.append(["BrainBlock", [0, 0]])
+        self.blocks.append(["BrainBlock", [0, 0, 1]])
         self.blocks.append(["ReproductionBlock", [0, -1]])
 
         self.blocks.append(["GenericBlock", [-1, 0]])
