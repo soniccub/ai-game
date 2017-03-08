@@ -46,6 +46,8 @@ class Brain:
 
 
     def network_run(self):
+
+
         input_list = []
         position_angle_list = []
 
@@ -58,9 +60,6 @@ class Brain:
             for iii in range(i.sense_detail):
                 detail_input = 0
                 for ii in sense_list:
-
-
-
                     if iii * (180/i.sense_detail) >= ii[2] and (iii+1) * (180/i.sense_detail) <= ii[2] :
                         if (i.max_sense_distance - math.sqrt((ii[2][0]**2 + ii[2][1]**2)))/i.max_sense_distance > detail_input:
                             detail_input = (i.max_sense_distance -
@@ -79,9 +78,7 @@ class Brain:
 
     def network_create(self,):
         ### In order : sensors as they appear in list in order : food level : blocks in order (touch)
-        ###                                                                  first touch food second third enviormt
 
         self.network = network.Network(self, [3 + len(self.creature.blueprint) + len(self.creature.sensors) * self.creature.sensors.sense_detail, self.creature.abilities ])
 
 
-        pass

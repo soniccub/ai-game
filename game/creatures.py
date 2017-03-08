@@ -57,13 +57,14 @@ class Creature:
         self.frame = frame
         self.position = position
         self.blueprint = blueprint
-        self.block_size = [10, 10]
+        self.block_size = [5,5]
         self.blocks = []
         self.power_move_ratio = 1
         self.turn_power_ratio = 1/360
         self.creatures = creatures
         self.direction = 90
         self.sensors = []
+
         self.sense_detail = 10
         self.action_blocks = []
 
@@ -184,9 +185,9 @@ class Creature:
         self.direction %= 360
         for block in self.blocks:
             block.last_direction = block.direction
-            #block.direction += direction
-            #block.direction %= 360
 
+            block.position[0] += math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
+            block.position[1] += math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
 
             for i in range(len(block.x_edges)):
 
@@ -226,14 +227,22 @@ class Creature:
 
 
     def position_update(self, position_change):
+        block_position_save = []
         for block in range(len(self.blocks)):
+            block_position_save.append(list(self.blocks[block].position))
             self.blocks[block].position[0] += position_change[0]
             self.blocks[block].position[1] += position_change[1]
 
+
+        old_position = list(self.position)
         self.position[0] += position_change[0]
         self.position[1] += position_change[1]
 
-
+        for i in self.blocks:
+            if self.creatures.main.world.is_touching_object(i):
+                self.position = list(old_position)
+                for block in range(len(self.blocks)):
+                    self.blocks[block].position = list(block_position_save[block])
     def move(self, coords, power):
         self.direction_change(self.move_direction(coords, power))
 
@@ -261,6 +270,17 @@ class Creature:
             print(block.direction, edge_list)
 
             self.frame.frame.create_polygon(new_edge_list, fill=block.color)
+
+
+    def check_block_touching(self):
+        input_list = []
+        for block in self.blocks:
+            if self.creatures.main.world.is_touching_object(block):
+                input_list.append(1)
+            else:
+                input_list.append(0)
+        return input_list
+
 
 
 

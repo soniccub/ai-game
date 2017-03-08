@@ -114,6 +114,17 @@ class World:
         return object_position_corners ### The bottom left and top right corners for positions
 
 
+    def is_touching_object(self, block):
+        for i in self.objects:
+            if block.position[0] + block.creature.block_size[0] > i.position[0] - i.size[0] and \
+                    block.position[0] - block.creature.block_size[0] < i.position[0] + i.size[0]:
+
+
+                if block.position[1] + block.creature.block_size[1] > i.position[1] - i.size[1] and \
+                    block.position[1] - block.creature.block_size[1] < i.position[1] + i.size[1]:
+                    return True
+
+        return False
 
 
 
