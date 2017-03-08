@@ -6,20 +6,23 @@ import math
 
 class Sensor:
     activatable = False
-    def __init__(self, creature,position, coords, type, sense_detail):
+    type = "sensor"
+    def __init__(self, creature, position, coords, type, sense_detail):
+        self.y_edges = []
+        self.x_edges = []
         self.sense_detail = sense_detail ### Every level gives one extra neuron to the brain for that eye range of 1-10
         self.creature = creature
         self.world = self.creature.creatures.main.world
         self.coords = coords
         self.position = position
-        self.direction = angle_measure(coords) + self.creature.direction
+        self.sense_direction = angle_measure(coords) + self.creature.direction ## So that it can do the object sense thing in the right direction
+        self.direction = angle_measure(coords) ### for the drawing
 
-        self.type = type
-        self.type_set(self.type)
+        self.sensortype = type
+        self.type_set(self.sensortype)
         self.max_sense_distance = 10 * sense_detail
 
-        self.y_edges = []
-        self.x_edges = []
+
 
     def sense(self):
         object_list = []
@@ -32,7 +35,7 @@ class Sensor:
 
 
     def world_object_sense(self):
-        direction_facing = self.direction + self.creature.direction
+        direction_facing = self.sense_direction + self.creature.direction
 
         objects_around = self.world.space_near([self.creature.position[0] + math.cos(
             direction_facing * math.pi / 180) * math.sqrt(self.coords[0] ** 2 + self.coords[1] ** 2),
@@ -52,7 +55,7 @@ class Sensor:
         objects_seen = []
         for i in object_angles:
             for ii in i:
-                if ii - self.direction < 180 and ii - self.direction > 0:
+                if ii - self.sense_direction < 180 and ii - self.sense_direction > 0:
                     self.objects_seen.append(i[5], i[6], angle_measure([i[6][1], i[6][0]]), 0, "object")
                     ### 0 = object type
                     ### i[5] is object itself
@@ -63,22 +66,22 @@ class Sensor:
 
 
 
-    def type_set(self, type):
+    def type_set(self, sensortype):
 
-        if type == "GeneralSensor":
+        if sensortype == "GeneralSensor":
             self.sensor = GeneralSensor
-        elif type == "CreatureSensor":
+        elif sensortype == "CreatureSensor":
             self.sensor = CreatureSensor
-        elif type == "ObstacleSensor":
+        elif sensortype == "ObstacleSensor":
             self.sensor = ObstacleSensor
-        elif type == "FoodSensor":
+        elif sensortype == "FoodSensor":
             self.sensor = FoodSensor
 
         else:
             self.sensor = GeneralSensor
             print("sensor name not correct", self)
 
-
+        self.color = self.sensor.color
 
 
 

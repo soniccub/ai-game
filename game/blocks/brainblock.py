@@ -22,6 +22,7 @@ class BrainBlock():
         self.brain_size = brain_size
         self.y_edges = []
         self.x_edges = []
+        
         self.direction = self.creature.direction
         for block in self.creature.blocks:
             if block.activatable:

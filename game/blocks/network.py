@@ -17,8 +17,6 @@ class Network():
         self.upper = upper
         self.inputs = inputs
         self.outputs = outputs
-        self.y_edges = []
-        self.x_edges = []
 
         self.length = length
 

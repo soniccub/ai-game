@@ -96,7 +96,7 @@ class Creature:
                       i[1][1] * self.block_size[1] + self.position[1]]
 
 
-            print(i[1],1111)
+            #print(i[1],1111)
             self.blocks.append(self.block_create(i[0], coords, i[1]))
 
 
@@ -126,7 +126,7 @@ class Creature:
 
 
         elif block_str == "BrainBlock":
-            print(coord)
+            #print(coord)
             new_block = blocks.brainblock.BrainBlock(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
 
 
@@ -199,14 +199,30 @@ class Creature:
 
 
     def block_edges_create(self):
-        for block in self.blocks:
-            for i in range(4):
 
-                block.x_edges.append(math.cos(i * math.pi/2 + math.pi/4) * self.block_size[0] / math.sqrt(2) + self.position[0]
-                    + math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
-                block.y_edges.append(
-                    math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
-                    + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
+        for block in self.blocks:
+            if block.type == "brain" or block.type == "body" or block.type == "sensor":
+                #print(1111111)
+                for i in range(4):
+
+                    block.x_edges.append(math.cos(i * math.pi/2 + math.pi/4) * self.block_size[0] / math.sqrt(2) + self.position[0]
+                        + math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
+                    block.y_edges.append(math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
+                        + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
+
+            #if block.type == "sensor":
+             #   for i in range(3):
+
+              #      if i == 0:
+
+               #         block.x_edges.append(math.cos(self.direction) * self.block_size[0] / math.sqrt(2) + self.position[0]
+                #            + math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
+
+                 #       block.y_edges.append(0 * self.block_size[1] / math.sqrt(2) + self.position[1] + math.sin(
+                  #          (block.direction - self.direction) * math.pi / 180) * self.block_size[1] * math.sqrt(block.coords[0] ** 2 + block.coords[1] ** 2))
+
+#                    print(00,block.x_edges,block.y_edges,block.position,self.position)
+
 
 
     def position_update(self, position_change):
@@ -228,14 +244,23 @@ class Creature:
     def draw(self):
 
         for block in self.blocks:
+            print(block.type, block.coords)
 
-            if block.type == "body" or block.type == "brain":
+            if block.type == "body" or block.type == "brain" or block.type == "sensor":
                 edge_list = []
                 for i in range(len(block.x_edges)):
                     edge_list.append(self.frame.coord_switch([block.x_edges[i], block.y_edges[i]]))
 
-            self.frame.frame.create_polygon(edge_list[0], edge_list[1], edge_list[2], edge_list[3], fill=block.color)
+            else:
+                edge_list = []
+                print("Object type not right for drawing object: ", block.type)
+                break
+            new_edge_list = []
+            for i in edge_list:
+                new_edge_list.append([i[0], i[1]])
+            print(block.direction, edge_list)
 
+            self.frame.frame.create_polygon(new_edge_list, fill=block.color)
 
 
 
@@ -258,7 +283,6 @@ class Blueprint:
 
             self.create_print()
         else:
-
 
             self.old_print_change()
         self.vineprint = list(self.blocks)

@@ -152,8 +152,6 @@ class MoveBlock:
 
 
 def angle_measure(coords):
-    coords = [coords[1], coords[0]]
-    ### Lazy af
     if coords[0] == 0:
         if coords[1] > 0:
             direction = 90
