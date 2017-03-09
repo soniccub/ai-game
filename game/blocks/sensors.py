@@ -17,6 +17,8 @@ class Sensor:
         self.position = position
         self.sense_direction = angle_measure(coords) + self.creature.direction ## So that it can do the object sense thing in the right direction
         self.direction = angle_measure(coords) ### for the drawing
+        self.food_storage = 25
+
 
         self.sensortype = type
         self.type_set(self.sensortype)

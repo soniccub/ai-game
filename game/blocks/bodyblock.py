@@ -23,6 +23,7 @@ class GenericBlock:
         self.direction = angle_measure(self.coords)
         self.y_edges = []
         self.x_edges = []
+        self.food_storage = 50
 
 
     def upkeep(self):
@@ -44,7 +45,7 @@ class StorageBlock:
         self.direction = angle_measure(self.coords)
         self.y_edges = []
         self.x_edges = []
-
+        self.food_storage = 500
     def upkeep(self):
         self.creature.food -= 0.5
 
@@ -66,7 +67,7 @@ class VineBlock:
         self.position = block_position
         self.coords = block_position
         self.direction = angle_measure(self.coords)
-
+        self.food_storage = 25
         self.y_edges = []
         self.x_edges = []
 
@@ -89,6 +90,8 @@ class GrowthBlock:
         self.position = block_position
         self.coords = block_position
         self.direction = angle_measure(self.coords)
+        self.food_storage = 25
+
 
         self.y_edges = []
         self.x_edges = []
@@ -111,6 +114,7 @@ class ReproductionBlock:
         self.position = block_position
         self.coords = blueprint_coords
         self.direction = angle_measure(self.coords)
+        self.food_storage = 25
 
         self.y_edges = []
         self.x_edges = []
@@ -136,6 +140,8 @@ class MoveBlock:
         self.y_edges = []
         self.x_edges = []
         self.direction = angle_measure(self.coords)
+        self.food_storage = 25
+
 
     def upkeep(self):
         self.creature.food -= 2

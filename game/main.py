@@ -2,7 +2,7 @@
 
 #import gc
 #gc.enable()
-
+from datetime import datetime
 
 from tkinter import *
 import world
@@ -22,11 +22,6 @@ class Main:
         self.world_size = [800, 800]
 
 
-
-
-
-
-
         self.gameframe = GameFrame(self, self.root)
         self.world = world.World(self, self.world_size, 0, 1.5, self.gameframe, self.size)
         self.creatures = creatures.Creatures(self.world_size, self, self.gameframe, self.size)
@@ -44,6 +39,7 @@ class Main:
 
 
     def tick(self):
+
         self.world_update()
         self.creature_update()
         self.draw_update()
@@ -84,12 +80,15 @@ class GameFrame:
         self.main.root.bind('<Right>', rightKey)
         self.main.root.bind('<Up>', upKey)
         self.main.root.bind('<Down>', downKey)
-
+        last_time = 0
         while True:
+            last_time = datetime.now()
+
             self.frame.delete("all")
             self.main.tick()
             self.root.update_idletasks()
             self.root.update()
+            print(1/((datetime.now().microsecond-last_time.microsecond)/1000000.0))
 
 
     def position_on_screen(self, position, size):

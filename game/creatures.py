@@ -57,7 +57,7 @@ class Creature:
         self.frame = frame
         self.position = position
         self.blueprint = blueprint
-        self.block_size = [5,5]
+        self.block_size = [10, 10]
         self.blocks = []
         self.power_move_ratio = 1
         self.turn_power_ratio = 1/360
@@ -82,13 +82,11 @@ class Creature:
             i.activate(10)
         self.block_edges_create()
 
-
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
         ### The power is the strength of each activation in the list of possible activatible objects
         for i in range(len(self.active_block_list)):
             self.active_block_list[i].activate(power_list[i])
-
 
     def creature_creation(self):
         for i in self.blueprint.blocks:
@@ -99,7 +97,6 @@ class Creature:
 
             #print(i[1],1111)
             self.blocks.append(self.block_create(i[0], coords, i[1]))
-
 
     def block_create(self, block_str, coord, coord_on_creature):
         if block_str == "GenericBlock":
@@ -141,7 +138,6 @@ class Creature:
 
         return new_block
 
-
     def block_change(self, block, new_block_string):
         if new_block_string == "GenericBlock":
             new_block = bodyblock.GenericBlock(block.creature, block.position, block.coords)
@@ -174,17 +170,18 @@ class Creature:
 
         return new_block
 
-
     def move_direction(self, position, power):
         return math.atan(position[1]/position[0]) * 180/math.pi * power * self.turn_power_ratio
 
-
     def direction_change(self, direction):
-
+        direction_change = self.direction - direction
         self.direction -=direction
         self.direction %= 360
         for block in self.blocks:
             block.last_direction = block.direction
+            if block.type == "sensor":
+                block.sense_direction += direction_change
+
 
             block.position[0] += math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
             block.position[1] += math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
@@ -197,7 +194,6 @@ class Creature:
 
                 block.y_edges[i] = math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1] \
                     + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
-
 
     def block_edges_create(self):
 
@@ -222,9 +218,7 @@ class Creature:
                  #       block.y_edges.append(0 * self.block_size[1] / math.sqrt(2) + self.position[1] + math.sin(
                   #          (block.direction - self.direction) * math.pi / 180) * self.block_size[1] * math.sqrt(block.coords[0] ** 2 + block.coords[1] ** 2))
 
-#                    print(00,block.x_edges,block.y_edges,block.position,self.position)
-
-
+#                    #print(00,block.x_edges,block.y_edges,block.position,self.position)
 
     def position_update(self, position_change):
         block_position_save = []
@@ -243,17 +237,17 @@ class Creature:
                 self.position = list(old_position)
                 for block in range(len(self.blocks)):
                     self.blocks[block].position = list(block_position_save[block])
+
     def move(self, coords, power):
         self.direction_change(self.move_direction(coords, power))
 
         self.position_update([math.cos(self.direction * math.pi / 180 - math.pi/2) * power * self.power_move_ratio / len(self.blocks),
                               math.sin(self.direction * math.pi / 180 + math.pi/2) * power * self.power_move_ratio / len(self.blocks)])
 
-
     def draw(self):
 
         for block in self.blocks:
-            print(block.type, block.coords)
+            #print(block.type, block.coords)
 
             if block.type == "body" or block.type == "brain" or block.type == "sensor":
                 edge_list = []
@@ -267,10 +261,9 @@ class Creature:
             new_edge_list = []
             for i in edge_list:
                 new_edge_list.append([i[0], i[1]])
-            print(block.direction, edge_list)
+            #print(block.direction, edge_list)
 
             self.frame.frame.create_polygon(new_edge_list, fill=block.color)
-
 
     def check_block_touching(self):
         input_list = []
@@ -281,6 +274,20 @@ class Creature:
                 input_list.append(0)
         return input_list
 
+    def food_level_max(self):
+        food_max = 0
+        for block in self.blocks:
+            food_max += block.food_storage
+        return food_max
+
+    def network_input(self):
+        inputs = []
+        inputs.append(self.food / self.food_level_max())
+        touching_list = self.check_block_touching()
+        for i in touching_list:
+            inputs.append(i)
+
+        return inputs
 
 
 

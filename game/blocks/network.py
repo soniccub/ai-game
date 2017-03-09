@@ -112,7 +112,7 @@ class Neuron():
     def set_wieghts(self):
         self.connection_weights = []
         for i in range(len(self.connections)):
-            self.connection_weights.append([self.connections[i], random.randrange(200)/100])
+            self.connection_weights.append([self.connections[i], random.randrange(201)/100])
             print(self.connection_weights)
 
     def input(self, input):

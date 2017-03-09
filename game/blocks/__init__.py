@@ -4,4 +4,4 @@ import blocks.brainblock
 import blocks.bodyblock
 
 import blocks.sensors
-print("blocks imported")
+print("blocks imported, cuck")
