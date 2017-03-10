@@ -86,7 +86,7 @@ class World:
 
     def space_near(self, creature_position):
         object_position_corners = []
-        for i in range(self.objects):
+        for i in range(len(self.objects)):
             object_position_corners.append([self.objects[i].position[0] - creature_position[0] - self.objects[i].size[0] / 2,
                                             self.objects[i].position[1] - creature_position[1] - self.objects[i].size[1] / 2,
                                             ### Bottom Left corner

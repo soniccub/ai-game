@@ -37,13 +37,10 @@ class Sensor:
 
 
     def world_object_sense(self):
-        direction_facing = self.sense_direction + self.creature.direction
+        direction_facing = self.sense_direction
 
-        objects_around = self.world.space_near([self.creature.position[0] + math.cos(
-            direction_facing * math.pi / 180) * math.sqrt(self.coords[0] ** 2 + self.coords[1] ** 2),
-                                                self.creature.position[1] + math.sin(
-                                                    direction_facing * math.pi / 180) * math.sqrt(
-                                                    self.coords[0] ** 2 + self.coords[1] ** 2)])
+        objects_around = self.world.space_near([self.creature.position[0] + math.cos( direction_facing * math.pi / 180) * math.sqrt(self.coords[0] ** 2 + self.coords[1] ** 2),
+                                                self.creature.position[1] + math.sin(direction_facing * math.pi / 180) * math.sqrt(self.coords[0] ** 2 + self.coords[1] ** 2)])
 
         object_angles = []
         for i in objects_around:
@@ -54,15 +51,15 @@ class Sensor:
                                   angle_measure([i[7], i[6]]),
                                   i[8],
                                   i[9]])
+            #print(object_angles)
         objects_seen = []
         for i in object_angles:
+            #print(object_angles)
+
             for ii in i:
-                if ii - self.sense_direction < 180 and ii - self.sense_direction > 0:
-                    self.objects_seen.append(i[5], i[6], angle_measure([i[6][1], i[6][0]]), 0, "object")
-                    ### 0 = object type
-                    ### i[5] is object itself
-                    ### i[6] is position relitive to sensor
-                    ### next takes angle relitive to sensor
+                if type(ii) == float or type(ii) == int:
+                    objects_seen.append([ii,i[5]])
+
 
         return objects_seen
 
@@ -84,6 +81,9 @@ class Sensor:
             print("sensor name not correct", self)
 
         self.color = self.sensor.color
+
+    def upkeep(self):
+        self.creature.food -= 15
 
 
 

@@ -30,6 +30,7 @@ class Creatures:
 
     def tick(self):
         for i in self.creatures_list:
+            i.tick()
             i.activate([1, 1, 1, 1])
 
 
@@ -70,6 +71,7 @@ class Creature:
 
 
 
+
         if len(blueprint) == 0:
             self.blueprint = Blueprint(self)
         self.creature_creation()
@@ -77,11 +79,13 @@ class Creature:
         for i in self.blocks:
             if i.activatable:
                 self.active_block_list.append(i)
-
+                print(self.active_block_list)
         for i in self.active_block_list:
             i.activate(10)
         self.block_edges_create()
-
+        for i in self.blocks:
+            if i.type == "brain":
+                i.create_brain()
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
         ### The power is the strength of each activation in the list of possible activatible objects
@@ -288,6 +292,14 @@ class Creature:
             inputs.append(i)
 
         return inputs
+
+    def tick(self):
+        if self.food > 0:
+            for i in self.blocks:
+                if i.type == "brain":
+                    i.input(self.network_input())
+                i.upkeep()
+
 
 
 

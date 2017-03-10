@@ -11,7 +11,7 @@ import math
 
 
 class Network():
-    def __init__(self, upper, inputs, outputs, length):
+    def __init__(self, upper, inputs, outputs, length = 3):
 
         ### Setting inputs and outputs of the newtork
         self.upper = upper
@@ -27,38 +27,34 @@ class Network():
         self.network_creation()
 
 
-    def signal(self, current_row, next_row, inputs):
-        if current_row.output:
+    def signal(self, current_row, inputs):
+        print(0,self.neurons)
+        if self.neurons[current_row][0].output:
             return inputs
         temp_input = []
-        new_next_row = []
-
-
-
-
-        for i in next_row:
+        for i in range(len(self.neurons[current_row + 1])):
             temp_input.append(0)
+        for i in range(len(self.neurons[current_row])):
+            add_input = self.neurons[current_row][i].input(inputs[i])
+            for ii in range(len(temp_input)):
 
-        for i in range(len(next_row)):
-            single_input = current_row[i].input(inputs[i])
-            temp_input = [x + y for x, y in zip(temp_input, single_input)]
-
-
-        ### To get the list of neurons for next run-through
-        for i in next_row[0].connections:
-            new_next_row.append(i[0])
-
-        self.output_list = []
+                #print(0, add_input, temp_input)
+                temp_input[ii] += add_input[ii]
 
 
-        return self.signal(next_row, new_next_row, temp_input)
+
+
+
+
+        next_row = current_row + 1
+        return self.signal(next_row,  temp_input)
 
 
 
     def run_network(self, inputs):
 
 
-        return self.signal(self.neurons[0],self.neurons[1], inputs)
+        return self.signal(0, inputs)
 
 
     def output(self, output):
@@ -75,7 +71,7 @@ class Network():
         temp_list.append([])
         ### Initializes last neurons
         for i in range(len(self.size[1])):
-            temp_list[0].append(Neuron(self, [i, self.length], [None], True))
+            temp_list[0].append(Neuron(self, [i, len(self.outputs)], [None], True))
 
         ### Defines all middle ones, ignores first two and last
         i = self.size[2]
@@ -85,10 +81,10 @@ class Network():
 
             for ii in self.size[1]:
                 # print(temp_list)
-                temp_list[self.length - i + 1].append(Neuron(self, [ii, i], temp_list[self.length - i]))
+                temp_list[self.length - i + 1].append(Neuron(self, [ii, i], temp_list[self.inputs - i]))
             i -= 1
         ### The first row, which may have a different size than the others.
-        for i in self.size[0]:
+        for i in self.size:
             temp_list[1].append(Neuron(self, [i, 0], [temp_list[len(temp_list) - 1]]))
 
         i = len(temp_list) - 1
@@ -103,7 +99,7 @@ class Neuron():
         ### [neuron, weight]
         self.connections = connections
 
-
+        self.output = output
         self.last_input = 0
         if not output:
             self.set_wieghts()
@@ -118,8 +114,8 @@ class Neuron():
     def input(self, input):
         output = []
         if not self.output:
-            for i in self.connections:
-                output.append([i[1] * input])
+            for i in self.connection_weights:
+                output.append(i[1] * input)
 
         else:
             self.out_put(input)
