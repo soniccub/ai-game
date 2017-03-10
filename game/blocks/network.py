@@ -29,7 +29,7 @@ class Network():
 
     def signal(self, current_row, inputs):
         if self.neurons[current_row][0].output:
-            print(inputs,current_row)
+            #print(inputs,current_row)
             return inputs
         temp_input = []
         for i in (self.neurons[current_row]):

@@ -72,15 +72,19 @@ class Brain:
             detail_input = 0
                 #print(sense_list)
             for ii in sense_list:
-                for i in ii:
-                    #print(i[0][0])
-                    if iii * (180 / self.creature.sensors[0].sense_detail) >= i[0][0] and (iii + 1) * (180 / self.creature.sensors[0].sense_detail) <= i[0][0]:
-                        if (self.creature.sensors[0].max_sense_distance - math.sqrt((i[1][0]**2 + i[0][1]**2)))/self.creature.sensors[0].max_sense_distance > detail_input:
-                            detail_input = self.creature.sensors[0].max_sense_distance - math.sqrt((i[2][0]**2 + i[2][1]**2))/self.creature.sensors[0].max_sense_distance
+                for i in ii[0]:
+
+
+                    #print(ii)
+                    if iii * (180 / self.creature.sensors[0].sense_detail) <= i[0] and (iii + 1) * (180 / self.creature.sensors[0].sense_detail) >= i[0]:
+                        if (self.creature.sensors[0].max_sense_distance - math.sqrt((i[1][0]**2 + i[1][1]**2)))/self.creature.sensors[0].max_sense_distance > detail_input:
+                            detail_input = self.creature.sensors[0].max_sense_distance - math.sqrt((i[1][0]**2 + i[1][1]**2))/self.creature.sensors[0].max_sense_distance
+
                 ### Only senses the closest object and puts that into the network
                 ### Splits it up in equal amounts of degrees based on the "level" of the sensor
-                        input_list.append(detail_input)
-            self.creature.activate(self.network.run_network(input_list))
+            input_list.append(detail_input)
+            #print(0,detail_input)
+        self.creature.activate(self.network.run_network(input_list))
 
 
     def output(self, output):

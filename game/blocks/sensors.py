@@ -54,13 +54,14 @@ class Sensor:
             #print(object_angles)
         objects_seen = []
         for i in object_angles:
-            #print(object_angles)
 
             for ii in i:
+                #print(ii)
+
                 if type(ii) == float or type(ii) == int:
-                    objects_seen.append([ii,i[5]])
+                    objects_seen.append([ii, i[5]])
 
-
+        #print(objects_seen)
         return objects_seen
 
 
@@ -152,6 +153,7 @@ def angle_measure(coords):
         direction = math.atan(coords[1] / coords[0]) * 180 / math.pi
         if coords[0] < 0:
             direction += 180
-
+    if direction < 0:
+        direction+=360
 
     return direction

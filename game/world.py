@@ -146,5 +146,7 @@ def vector_to_angle(self, position):
         if position[0] < 0:
             direction += 180
 
-
+    if direction < 0:
+        direction +=360
+        print(direction)
     return direction

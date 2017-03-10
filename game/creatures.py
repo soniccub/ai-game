@@ -87,6 +87,7 @@ class Creature:
                 i.create_brain()
 
         self.food = self.food_level_max()
+        
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
         ### The power is the strength of each activation in the list of possible activatible objects
