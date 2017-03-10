@@ -28,18 +28,16 @@ class Network():
 
 
     def signal(self, current_row, inputs):
-        print(0,self.neurons)
         if self.neurons[current_row][0].output:
+            print(inputs,current_row)
             return inputs
         temp_input = []
-        for i in range(len(self.neurons[current_row + 1])):
-            temp_input.append(0)
-        for i in range(len(self.neurons[current_row])):
-            add_input = self.neurons[current_row][i].input(inputs[i])
-            for ii in range(len(temp_input)):
+        for i in (self.neurons[current_row]):
+            temp_input.append([0])
 
-                #print(0, add_input, temp_input)
-                temp_input[ii] += add_input[ii]
+        for i in len(range(self.neurons[current_row])):
+            temp_input[i] += self.neurons[current_row][i].input(inputs[i])
+
 
 
 
@@ -69,32 +67,31 @@ class Network():
         ### Size 0 in inputs
         temp_list = []
         temp_list.append([])
-        ### Initializes last neurons
         for i in range(len(self.size[1])):
-            temp_list[0].append(Neuron(self, [i, len(self.outputs)], [None], True))
+            temp_list[0].append(Neuron(self, None, True))
 
-        ### Defines all middle ones, ignores first two and last
-        i = self.size[2]
-        while i > 1:
-
+        i = self.length
+        while i > 0:
             temp_list.append([])
+            for ii in range(self.size[0]):
 
-            for ii in self.size[1]:
-                # print(temp_list)
-                temp_list[self.length - i + 1].append(Neuron(self, [ii, i], temp_list[self.inputs - i]))
+                temp_list[self.length-i+1].append(Neuron(self, temp_list[self.length-i]))
             i -= 1
-        ### The first row, which may have a different size than the others.
-        for i in self.size:
-            temp_list[1].append(Neuron(self, [i, 0], [temp_list[len(temp_list) - 1]]))
+        even_temper_list = []
+        even_temperestest_list = []
+        for i in range(self.size[0]):
 
-        i = len(temp_list) - 1
-        while i > -1:
-            self.neurons.append(temp_list[i])
-            i += -1
+            even_temper_list.append(Neuron(self, temp_list[-1]))
+        temp_list.append(even_temper_list)
+
+        for i in temp_list:
+            self.neurons.append(i)
+
+        ### Initializes last neurons
 
 
 class Neuron():
-    def __init__(self, network, position, connections, output=False):
+    def __init__(self, network, connections, output=False):
         ### Connections it has
         ### [neuron, weight]
         self.connections = connections
@@ -109,8 +106,6 @@ class Neuron():
         self.connection_weights = []
         for i in range(len(self.connections)):
             self.connection_weights.append([self.connections[i], random.randrange(201)/100])
-            print(self.connection_weights)
-
     def input(self, input):
         output = []
         if not self.output:
