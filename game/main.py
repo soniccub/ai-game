@@ -88,7 +88,7 @@ class GameFrame:
             self.main.tick()
             self.root.update_idletasks()
             self.root.update()
-            print(1/((datetime.now().microsecond-last_time.microsecond)/1000000.0))
+            print(((abs(datetime.now().microsecond-last_time.microsecond))/1000000.0))
 
 
     def position_on_screen(self, position, size):

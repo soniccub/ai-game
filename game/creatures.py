@@ -14,24 +14,19 @@ class Creatures:
 
         #self.creature_create()
         self.creatures_list.append(Creature(self.frame, [0, 0], self))
+        self.start_creatures()
+        print("creatures Created")
 
-    def creature_create(self):
+    def start_creatures(self, amount=10):
+        for i in range(amount):
+            position = [(random.randrange(self.main.world.size[0]) - self.main.world.size[0]/2) * 7 / 10,
+                        (random.randrange(self.main.world.size[1]) - self.main.world.size[1]/2) * 7 / 10]
 
-        ### For every set of 20 spaces
-        for i in range(-self.size[0]/2, self.size[0]/2, 20):
-            for ii in range(-self.size[1]/2, self.size[1]/2, 20):
-                #create_creature(i,ii)
-                pass
-
-
-    def generation(self):
-        pass
-
+            self.creature_creation(position)
 
     def tick(self):
         for i in self.creatures_list:
             i.tick()
-
 
     def draw(self):
         for creature in self.creatures_list:
@@ -42,22 +37,13 @@ class Creatures:
 
 
 
-
-
-
-
-
-
-
-
-
 class Creature:
     def __init__(self, frame, position, creatures, blueprint=[]):
         self.food = 0
         self.frame = frame
         self.position = position
         self.blueprint = blueprint
-        self.block_size = [10, 10]
+        self.block_size = [3, 3]
         self.blocks = []
         self.power_move_ratio = 1
         self.turn_power_ratio = 1/180
@@ -67,9 +53,6 @@ class Creature:
 
         self.sense_detail = 10
         self.action_blocks = []
-
-
-
 
         if len(blueprint) == 0:
             self.blueprint = Blueprint(self)
@@ -85,9 +68,17 @@ class Creature:
         for i in self.blocks:
             if i.type == "brain":
                 i.create_brain()
-
         self.food = self.food_level_max()
-        
+
+
+        for i in self.blocks:
+            if self.creatures.main.world.is_touching_object(i):
+                self.creatures.start_creatures(1)
+                del self
+                print("creature location is bad-retrying")
+                break
+        print("creature Created")
+
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
         ### The power is the strength of each activation in the list of possible activatible objects
@@ -304,13 +295,6 @@ class Creature:
                 i.upkeep()
 
 
-
-
-
-
-
-
-
 class Blueprint:
 
     def __init__(self, creature, old_print=[]):
@@ -332,7 +316,6 @@ class Blueprint:
             self.old_print_change()
         self.vineprint = list(self.blocks)
 
-
     def create_print(self):
         self.size = [3, 3]
         self.blocks = []
@@ -352,10 +335,6 @@ class Blueprint:
         self.blocks.append(["GenericBlock", [1, 0]])
         self.blocks.append(["GenericBlock", [0, 1]])
 
-
-
-
-
     def old_print_change(self):
         change_chance = 3
         new_block_chance = 2
@@ -367,17 +346,12 @@ class Blueprint:
             if random.randrange(100) < self.new_block_chance:
                 self.new_block(i)
 
-
-
     def new_block(self, coords):
         self.blocks.append(random.choice(self.name_list), coords)
 
     def name_change(self, block):
 
         block[0] = random.choice(self.name_list)
-
-
-
 
     def block_edges_open(self):
         block_edges = []
@@ -401,6 +375,3 @@ class Blueprint:
 
 
         return block_edges
-
-
-
