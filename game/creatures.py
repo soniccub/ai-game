@@ -17,7 +17,7 @@ class Creatures:
         self.start_creatures()
         print("creatures Created")
 
-    def start_creatures(self, amount=10):
+    def start_creatures(self, amount=0):
         for i in range(amount):
             position = [(random.randrange(self.main.world.size[0]) - self.main.world.size[0]/2) * 7 / 10,
                         (random.randrange(self.main.world.size[1]) - self.main.world.size[1]/2) * 7 / 10]

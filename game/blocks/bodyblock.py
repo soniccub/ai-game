@@ -1,4 +1,6 @@
 import math
+
+
 ### Upkeep is max 10 min 0.1
 ### Numbers picked on whim, calibrated soon?
 
@@ -16,19 +18,16 @@ class GenericBlock:
     activatable = False
 
     def __init__(self, creature, block_position, blueprint_coords):
-
         self.creature = creature
         self.position = block_position
         self.coords = blueprint_coords
         self.direction = angle_measure(self.coords)
         self.y_edges = []
         self.x_edges = []
-        self.food_storage = 5000
-
+        self.food_storage = 10000
 
     def upkeep(self):
-
-        self.creature.food -= 0.1
+        self.creature.food -= 0.05
 
     def activate(self, blank):
         pass
@@ -38,20 +37,18 @@ class StorageBlock:
     color = "#d20400"
     type = "body"
     activatable = False
-    def __init__(self, creature, block_position,  blueprint_coords):
+
+    def __init__(self, creature, block_position, blueprint_coords):
         self.creature = creature
         self.position = block_position
         self.coords = blueprint_coords
         self.direction = angle_measure(self.coords)
         self.y_edges = []
         self.x_edges = []
-        self.food_storage = 50000
+        self.food_storage = 75000
+
     def upkeep(self):
-        self.creature.food -= 0.5
-
-
-
-
+        self.creature.food -= 0.01
 
 
 ### Vine blocks repeat a certian confirgeration of blocks over and over again, includes itself
@@ -62,7 +59,8 @@ class VineBlock:
     color = "#007f00"
     type = "body"
     activatable = True
-    def __init__(self, creature, block_position,  blueprint_coords):
+
+    def __init__(self, creature, block_position, blueprint_coords):
         self.creature = creature
         self.position = block_position
         self.coords = block_position
@@ -71,10 +69,8 @@ class VineBlock:
         self.y_edges = []
         self.x_edges = []
 
-
-
     def upkeep(self):
-        self.creature.food -= 3
+        self.creature.food -= 0.5
 
 
 ### Grows a certian confirgertion off of it, once enough food is stored
@@ -84,6 +80,7 @@ class GrowthBlock:
     color = "#993f6c"
     type = "body"
     activatable = True
+
     def __init__(self, creature, blueprint, block_position, blueprint_coords):
         self.creature = creature
         self.blueprint = blueprint
@@ -92,12 +89,11 @@ class GrowthBlock:
         self.direction = angle_measure(self.coords)
         self.food_storage = 2500
 
-
         self.y_edges = []
         self.x_edges = []
 
     def upkeep(self):
-        self.creature.food -= 3
+        self.creature.food -= 0.5
 
 
 ### Once enough food is avialble makes a creature with blueprint of creature with it
@@ -107,8 +103,8 @@ class ReproductionBlock:
     color = "#ffa500"
     type = "body"
     activatable = True
-    def __init__(self, creature, block_position,  blueprint_coords, blueprint):
 
+    def __init__(self, creature, block_position, blueprint_coords, blueprint):
         self.creature = creature
         self.blueprint = blueprint
         self.position = block_position
@@ -120,10 +116,11 @@ class ReproductionBlock:
         self.x_edges = []
 
     def upkeep(self):
-        self.creature.food -= 6
+        self.creature.food -= 1
 
     def activate(self, power):
         pass
+
 
 class MoveBlock:
     color = "#00a500"
@@ -131,9 +128,7 @@ class MoveBlock:
     activatable = True
 
     def __init__(self, creature, block_position, blueprint_coords):
-
         self.creature = creature
-
 
         self.position = block_position
         self.coords = blueprint_coords
@@ -142,18 +137,15 @@ class MoveBlock:
         self.direction = angle_measure(self.coords)
         self.food_storage = 2500
 
-
     def upkeep(self):
-        self.creature.food -= 2
+        self.creature.food -= 1
 
     def activate(self, power):
-        self.creature.food -= power
+        self.creature.food -= power / 2
+        print(power, 121221000)
         self.creature.move(self.coords, power)
 
-        #print(self.position, 10)
-
-
-
+        # print(self.position, 10)
 
 
 def angle_measure(coords):
@@ -173,7 +165,4 @@ def angle_measure(coords):
         if coords[0] < 0:
             direction += 180
 
-
     return direction
-
-

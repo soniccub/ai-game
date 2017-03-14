@@ -2,45 +2,42 @@
 import math
 
 
-
-
 class Sensor:
     activatable = False
     type = "sensor"
+
     def __init__(self, creature, position, coords, type, sense_detail):
         self.y_edges = []
         self.x_edges = []
-        self.sense_detail = sense_detail ### Every level gives one extra neuron to the brain for that eye range of 1-10
+        self.sense_detail = sense_detail  ### Every level gives one extra neuron to the brain for that eye range of 1-10
         self.creature = creature
         self.world = self.creature.creatures.main.world
         self.coords = coords
         self.position = position
-        self.sense_direction = angle_measure(coords) + self.creature.direction ## So that it can do the object sense thing in the right direction
-        self.direction = angle_measure(coords) ### for the drawing
+        self.sense_direction = angle_measure(
+            coords) + self.creature.direction  ## So that it can do the object sense thing in the right direction
+        self.direction = angle_measure(coords)  ### for the drawing
         self.food_storage = 25
-
 
         self.sensortype = type
         self.type_set(self.sensortype)
         self.max_sense_distance = 10 * sense_detail
-
-
 
     def sense(self):
         object_list = []
         if self.sensor.world_object_see:
             object_list.append(self.world_object_sense())
 
-
-
         return object_list
-
 
     def world_object_sense(self):
         direction_facing = self.sense_direction
 
-        objects_around = self.world.space_near([self.creature.position[0] + math.cos( direction_facing * math.pi / 180) * math.sqrt(self.coords[0] ** 2 + self.coords[1] ** 2),
-                                                self.creature.position[1] + math.sin(direction_facing * math.pi / 180) * math.sqrt(self.coords[0] ** 2 + self.coords[1] ** 2)])
+        objects_around = self.world.space_near([self.creature.position[0] + math.cos(
+            direction_facing * math.pi / 180) * math.sqrt(self.coords[0] ** 2 + self.coords[1] ** 2),
+                                                self.creature.position[1] + math.sin(
+                                                    direction_facing * math.pi / 180) * math.sqrt(
+                                                    self.coords[0] ** 2 + self.coords[1] ** 2)])
 
         object_angles = []
         for i in objects_around:
@@ -51,20 +48,18 @@ class Sensor:
                                   angle_measure([i[7], i[6]]),
                                   i[8],
                                   i[9]])
-            #print(object_angles)
+            # print(object_angles)
         objects_seen = []
         for i in object_angles:
 
             for ii in i:
-                #print(ii)
+                # print(ii)
 
                 if type(ii) == float or type(ii) == int:
                     objects_seen.append([ii, i[5]])
 
-        #print(objects_seen)
+        # print(objects_seen)
         return objects_seen
-
-
 
     def type_set(self, sensortype):
 
@@ -84,9 +79,7 @@ class Sensor:
         self.color = self.sensor.color
 
     def upkeep(self):
-        self.creature.food -= 15
-
-
+        self.creature.food -= 2
 
 
 class GeneralSensor:
@@ -96,13 +89,11 @@ class GeneralSensor:
     food_see = True
     type = "Sensor"
 
-
     def __init__(self):
         pass
+
     def objects_to_input(self, objects_seen):
         pass
-
-
 
 
 class CreatureSensor:
@@ -122,8 +113,10 @@ class ObstacleSensor:
     creature_see = True
     food_see = False
     type = "Sensor"
+
     def __init__(self):
         pass
+
 
 class FoodSensor:
     color = "#FFA500"
@@ -131,10 +124,9 @@ class FoodSensor:
     creature_see = False
     food_see = True
     type = "Sensor"
+
     def __init__(self):
         pass
-
-
 
 
 def angle_measure(coords):
@@ -154,6 +146,6 @@ def angle_measure(coords):
         if coords[0] < 0:
             direction += 180
     if direction < 0:
-        direction+=360
+        direction += 360
 
     return direction
