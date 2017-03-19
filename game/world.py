@@ -15,7 +15,7 @@ class World:
         ### food is split into three amounts
 
         ### [food already in enviorment, food that can be made from eviorment, food from obstacles]
-
+        self.food_list = []
         self.food_amount = food_amount
         ### The amount of obsticles 100 is 100% as in they cover everything
         self.obstacles_amount = obstacles_amount
@@ -27,6 +27,7 @@ class World:
 
 
 
+
     def build_world(self):
         ### Builds the world
         ### Gens food obs
@@ -34,6 +35,15 @@ class World:
         self.limits = [self.size[0]/2, self.size[1]/2, self.size[0]/2, self.size[1]/2]
 
         self.set_position(self.obstacles_amount)
+        self.create_food()
+        print("food created")
+
+    def create_food(self):
+        for i in range(int(-self.size[0]/2),int(self.size[0]/2)):
+            for ii in range(int(-self.size[1]/2), int(self.size[1]/2)):
+                if random.randrange(100) > 95:
+                    self.food_list.append(food.Food([i, ii],random.randrange(5000), self.frame))
+
 
     def set_position(self, amount):
 
@@ -56,33 +66,26 @@ class World:
         if rand == 0:
             object = tree.Tree([x, y], self.frame)
             self.objects.append(object)
-        if rand == 1:
+        elif rand == 1:
             object = rock.Rock([x, y], self.frame)
             self.objects.append(object)
 
+
         self.objects_positions.append([x, y, object])
-
-
-    def spawn_food(self, x, y):
-        pass
-    def spawn_creature(self, x, y):
-        pass
 
 
     def draw_objects(self):
 
         for i in self.objects:
             i.draw()
+        for i in self.food_list:
+            i.draw()
 
     def tick(self):
 
-        pass
+        self.draw_objects()
 
-    def draw(self):
-        draw_object_info = []
-        for i in self.objects:
-            ### [position,size,color]
-            draw_object_info.append(i.draw())
+
 
     def space_near(self, creature_position):
         object_position_corners = []

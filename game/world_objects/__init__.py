@@ -1,1 +1,1 @@
-from world_objects import rock, tree
+from world_objects import rock, tree, food

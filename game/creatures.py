@@ -1,6 +1,9 @@
 import blocks
 import math
 import random
+import threading
+
+
 class Creatures:
 
     def __init__(self, size, main, frame, screen_size):
@@ -17,7 +20,7 @@ class Creatures:
         self.start_creatures()
         print("creatures Created")
 
-    def start_creatures(self, amount=0):
+    def start_creatures(self, amount=5):
         for i in range(amount):
             position = [(random.randrange(self.main.world.size[0]) - self.main.world.size[0]/2) * 7 / 10,
                         (random.randrange(self.main.world.size[1]) - self.main.world.size[1]/2) * 7 / 10]
@@ -25,8 +28,12 @@ class Creatures:
             self.creature_creation(position)
 
     def tick(self):
+        threads = []
         for i in self.creatures_list:
-            i.tick()
+
+            threads.append(threading.Thread(target=i.tick))
+        for i in threads:
+            i.start()
 
     def draw(self):
         for creature in self.creatures_list:

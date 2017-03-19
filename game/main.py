@@ -56,7 +56,7 @@ class Main:
 
     def draw_update(self):
         self.creatures.draw()
-        self.world.draw()
+
 
 
 
@@ -90,7 +90,7 @@ class GameFrame:
             self.root.update()
             print(((abs(datetime.now().microsecond-last_time.microsecond))/1000000.0))
             for i in self.main.creatures.creatures_list:
-                #print(i.food/i.food_level_max(), "food")
+                print(i.food/i.food_level_max(), "food")
                 pass
 
 
