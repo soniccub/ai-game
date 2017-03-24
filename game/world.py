@@ -6,13 +6,14 @@ import math
 
 
 class World:
-    def __init__(self,main, size, food_amount, obstacles_amount, canvas,screen_size, food_richnes=100):
+    def __init__(self, main, size, food_amount, obstacles_amount, canvas,screen_size, food_richnes=100):
         self.possible_objects = 2
         self.frame = canvas
         ### Size of the world
         self.size = size
         self.screen_size = screen_size
         ### food is split into three amounts
+        self.main = main
 
         ### [food already in enviorment, food that can be made from eviorment, food from obstacles]
         self.food_list = []
@@ -85,7 +86,12 @@ class World:
 
         self.draw_objects()
 
-
+        for i in range(len(self.food_list)):
+            for ii in range(len(self.main.creatures.creatures_list)):
+                for iii in range(len(self.main.creatures.creatures_list[ii].blocks)):
+                    self.food_list[i].check_if_under(self.main.creatures.creatures_list[ii].blocks[iii].position,
+                                                     self.main.creatures.creatures_list[ii].block_size[0],
+                                                     self.main.creatures.creatures_list[ii])
 
     def space_near(self, creature_position):
         object_position_corners = []

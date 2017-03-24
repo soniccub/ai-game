@@ -76,6 +76,7 @@ class Creature:
             if i.type == "brain":
                 i.create_brain()
         self.food = self.food_level_max()
+        self.food_max = self.food_level_max()
 
 
         for i in self.blocks:
