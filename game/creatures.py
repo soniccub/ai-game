@@ -20,12 +20,18 @@ class Creatures:
         self.start_creatures()
         print("creatures Created")
 
-    def start_creatures(self, amount=5):
-        for i in range(amount):
-            position = [(random.randrange(self.main.world.size[0]) - self.main.world.size[0]/2) * 7 / 10,
-                        (random.randrange(self.main.world.size[1]) - self.main.world.size[1]/2) * 7 / 10]
+    def start_creatures(self, amount=5, blueprint=[], position_near=[]):
+        if len(position_near) == 0:
+            for i in range(amount):
+                position = [(random.randrange(self.main.world.size[0]) - self.main.world.size[0]/2) * 7 / 10,
+                            (random.randrange(self.main.world.size[1]) - self.main.world.size[1]/2) * 7 / 10]
 
-            self.creature_creation(position)
+                self.creature_creation(position)
+        else:
+            for i in amount:
+                position = [random.randrange(30) + position_near[0],
+                            random.randrange(30) + position_near[1]]
+                self.creature_creation(position, blueprint, position_near)
 
     def tick(self):
         threads = []
@@ -35,17 +41,19 @@ class Creatures:
         for i in threads:
             i.start()
 
+
     def draw(self):
         for creature in self.creatures_list:
             creature.draw()
 
-    def creature_creation(self, position):
-        self.creatures_list.append(Creature(self.frame, position, self))
+    def creature_creation(self, position, blueprint=[], position_near=[]):
+        self.creatures_list.append(Creature(self.frame, position, self, blueprint, position_near))
 
 
 
 class Creature:
-    def __init__(self, frame, position, creatures, blueprint=[]):
+    def __init__(self, frame, position, creatures, blueprint=[], position_near=[], network=[]):
+
         self.food = 0
         self.frame = frame
         self.position = position
@@ -69,19 +77,19 @@ class Creature:
             if i.activatable:
                 self.active_block_list.append(i)
                 #print(self.active_block_list)
-        for i in self.active_block_list:
-            i.activate(10)
+
         self.block_edges_create()
         for i in self.blocks:
             if i.type == "brain":
                 i.create_brain()
         self.food = self.food_level_max()
         self.food_max = self.food_level_max()
+        self.last_food = 0
 
 
         for i in self.blocks:
             if self.creatures.main.world.is_touching_object(i):
-                self.creatures.start_creatures(1)
+                self.creatures.start_creatures(1, self.blueprint, self.position)
                 del self
                 print("creature location is bad-retrying")
                 break
@@ -226,6 +234,7 @@ class Creature:
 #                    #print(00,block.x_edges,block.y_edges,block.position,self.position)
 
     def position_update(self, position_change):
+        print(position_change)
         block_position_save = []
         for block in range(len(self.blocks)):
             block_position_save.append(list(self.blocks[block].position))
@@ -295,11 +304,11 @@ class Creature:
         return inputs
 
     def tick(self):
+        self.last_food += 1
         if self.food > 0:
             for i in self.blocks:
                 if i.type == "brain":
                     i.input(self.network_input())
-                    #print(10000000000000000000000000)
                 i.upkeep()
 
 

@@ -27,16 +27,19 @@ class Network():
         self.network_creation(connections)
 
     def signal(self, current_row, inputs):
+        #print(self.neurons[current_row][0].output, current_row)
         if self.neurons[current_row][0].output:
-            #print(inputs)
-            # print(inputs,current_row)
             return inputs
         temp_input = []
-        for i in (self.neurons[current_row]):
-            temp_input.append([0])
+        for i in (self.neurons[current_row - 1]):
+            temp_input.append(0)
 
-        for i in len(range(self.neurons[current_row])):
-            temp_input[i] += self.neurons[current_row][i].input(inputs[i])
+        for i in range(len(self.neurons[current_row])):
+            #print(len(inputs),len(self.neurons[current_row]))
+            single_input = self.neurons[current_row][i].input(inputs[i])
+            for ii in range(len(temp_input)):
+                temp_input[ii] += single_input[ii]
+
 
         next_row = current_row + 1
         return self.signal(next_row, temp_input)
@@ -59,19 +62,23 @@ class Network():
         for i in range(len(self.size[1])):
             temp_list[0].append(Neuron(self, None, True, True))
 
-        i = self.length
+        i = self.length-2
         while i > 0:
             temp_list.append([])
             for ii in range(self.size[0]):
-                temp_list[self.length - i + 1].append(Neuron(self, temp_list[self.length - i], True))
+                #print(self.size[0],"fff")
+                temp_list[i].append(Neuron(self, temp_list[i-1], True))
             i -= 1
         even_temper_list = []
+        #print("www", len(temp_list))
         for i in range(self.size[0]):
-            even_temper_list.append(Neuron(self, temp_list[-1]))
+            even_temper_list.append(Neuron(self, temp_list[self.length-2]))
         temp_list.append(even_temper_list)
 
-        for i in temp_list:
-            self.neurons.append(i)
+        for i in range(len(temp_list)):
+            #print(len(temp_list[self.length-i-1]),"aaa")
+            self.neurons.append(temp_list[self.length-i-1])
+
 
         ### Initializes last neurons
         if len(connection) != 0:
@@ -104,16 +111,16 @@ class Network():
         avg = avg[0] / avg[1]
         return avg
 
-    def mutate(self, food_level, max_food):
+    def mutate(self, last_food):
         running_avg_avg = self.running_average_average()
         for i in self.neurons:
             for ii in i:
-                if random.randrange(int(food_level / max_food * 100)) < 10:
+                if random.randrange(last_food) > 25:
                     if ii.input_running_avg > random.randrange(
                             201) / 100 + running_avg_avg / 2 or ii.input_running_avg < random.randrange(
                             201) / 100 + running_avg_avg / 2:
                         ii.change_weights()
-                elif random.randrange(int(food_level / max_food * 100)) > 90:
+                elif random.randrange(last_food) > 50:
                     if abs(ii.input_running_avg - running_avg_avg) / running_avg_avg < 0.1:
                         ii.change_weights()
 
@@ -150,7 +157,8 @@ class Neuron:
 
         if not self.output:
             for i in range(len(self.connection_weights)):
-                output.append(self.connection_weights[i][1] * input)
+                #print(self.connection_weights)
+                output.append(self.connection_weights[i] * input)
 
         else:
             self.out_put(input)

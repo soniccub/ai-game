@@ -33,7 +33,7 @@ class BrainBlock():
 
     def upkeep(self):
         self.creature.food -= 2
-        self.brain.network.mutate(self.creature.food, self.creature.food_level_max())
+        self.brain.network.mutate(self.creature.last_food)
 
     def input(self, inputs):
         self.brain.network_run(inputs)
@@ -60,7 +60,7 @@ class Brain:
 
         position_angle_list = []
         sense_list = []
-        sensor_input = []
+        sensor_input = input_list
         for i in self.creature.sensors:
             sense_list.append(i.sense())
         for i in range(len(self.creature.sensors)):
@@ -74,17 +74,7 @@ class Brain:
 
                 sensor_input.append(detail_input)
                     ### Only senses the closest object and puts that into the network
-                    ### Splits it up in equal amounts of degrees based on the "level" of the sensor
-
-
-
-
-
-
-
-
-
-
+                    ### Splits it up in equal amounts of degrees based on the "level" of the senso
 
         self.creature.activate(self.network.run_network(sensor_input))
 

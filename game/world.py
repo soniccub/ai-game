@@ -26,9 +26,6 @@ class World:
         self.objects_positions = []
         self.build_world()
 
-
-
-
     def build_world(self):
         ### Builds the world
         ### Gens food obs
@@ -42,9 +39,8 @@ class World:
     def create_food(self):
         for i in range(int(-self.size[0]/2),int(self.size[0]/2)):
             for ii in range(int(-self.size[1]/2), int(self.size[1]/2)):
-                if random.randrange(100) > 95:
-                    self.food_list.append(food.Food([i, ii],random.randrange(5000), self.frame))
-
+                if random.randrange(1000) > 998:
+                    self.food_list.append(food.Food([i, ii],random.randrange(5000), self.frame, self))
 
     def set_position(self, amount):
 
@@ -61,7 +57,6 @@ class World:
             self.objects.append(tree.Tree([int(self.size[0] / 2), i], self.frame))
             self.objects.append(tree.Tree([int(-self.size[0] / 2), i], self.frame))
 
-
     def spawn_object(self,x ,y):
         rand = random.randrange(self.possible_objects)
         if rand == 0:
@@ -74,7 +69,6 @@ class World:
 
         self.objects_positions.append([x, y, object])
 
-
     def draw_objects(self):
 
         for i in self.objects:
@@ -85,6 +79,7 @@ class World:
     def tick(self):
 
         self.draw_objects()
+        self.new_food_list = list(self.food_list)
 
         for i in range(len(self.food_list)):
             for ii in range(len(self.main.creatures.creatures_list)):
@@ -92,6 +87,8 @@ class World:
                     self.food_list[i].check_if_under(self.main.creatures.creatures_list[ii].blocks[iii].position,
                                                      self.main.creatures.creatures_list[ii].block_size[0],
                                                      self.main.creatures.creatures_list[ii])
+
+        self.food_list = self.new_food_list
 
     def space_near(self, creature_position):
         object_position_corners = []
@@ -116,18 +113,15 @@ class World:
                                             self.objects[i],
                                             [self.objects[i].position[0] - creature_position[0],
                                              self.objects[i].position[1] - creature_position[1]]])
-                                            ### Object that it adds to objects it can see and its center position
 
 
 
         return object_position_corners ### The bottom left and top right corners for positions
 
-
     def is_touching_object(self, block):
         for i in self.objects:
             if block.position[0] + block.creature.block_size[0] > i.position[0] - i.size[0] and \
                     block.position[0] - block.creature.block_size[0] < i.position[0] + i.size[0]:
-
 
                 if block.position[1] + block.creature.block_size[1] > i.position[1] - i.size[1] and \
                     block.position[1] - block.creature.block_size[1] < i.position[1] + i.size[1]:
@@ -135,7 +129,13 @@ class World:
 
         return False
 
-
+    def food_around(self, position):
+        inputs = []
+        for i in self.food_list:
+            inputs.append(i.position[0]-position[0],
+                          i.position[1]-position[1],
+                          i)
+            
 
 
 def vector_to_angle(self, position):
@@ -156,5 +156,5 @@ def vector_to_angle(self, position):
             direction += 180
 
     if direction < 0:
-        direction +=360
+        direction += 360
     return direction

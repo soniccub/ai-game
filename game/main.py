@@ -1,5 +1,5 @@
 ### This is the main game file
-
+import threading
 #import gc
 #gc.enable()
 from datetime import datetime
@@ -39,10 +39,16 @@ class Main:
 
 
     def tick(self):
+        threads = []
+        threads.append(threading.Thread(target=self.world_update()))
 
-        self.world_update()
-        self.creature_update()
-        self.draw_update()
+
+        threads.append(threading.Thread(target=self.creature_update()))
+
+        threads.append(threading.Thread(target=self.draw_update()))
+
+        for i in threads:
+            i.start()
 
 
 
@@ -81,6 +87,7 @@ class GameFrame:
         self.main.root.bind('<Up>', upKey)
         self.main.root.bind('<Down>', downKey)
         last_time = 0
+
         while True:
             last_time = datetime.now()
 
@@ -100,8 +107,7 @@ class GameFrame:
     def coord_switch(self, position):
         return tkinter_handler.coord_switch(position, self.center_screen_position, self.size)
 
-    def draw_shape(self, points):
-        points = []
+
 
 
 
