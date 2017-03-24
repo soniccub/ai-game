@@ -88,7 +88,7 @@ class GameFrame:
             self.main.tick()
             self.root.update_idletasks()
             self.root.update()
-            print(abs(datetime.now().second + datetime.now().microsecond/100000000.0-(last_time.second+datetime.now().microsecond/100000000.0))
+            print(abs(datetime.now().second + datetime.now().microsecond/100000000.0-(last_time.second+datetime.now().microsecond/100000000.0)))
             for i in self.main.creatures.creatures_list:
                 print(i.food/i.food_level_max(), "food")
                 pass
