@@ -1,4 +1,5 @@
 import math
+import random
 
 
 ### Upkeep is max 10 min 0.1
@@ -119,7 +120,9 @@ class ReproductionBlock:
         self.creature.food -= 1
 
     def activate(self, power):
-        pass
+        if random.randrange(1000) > 995 and power > 2 and self.creature.food > self.creature.food_level_max()/2:
+            self.creature.reproduce()
+            self.creature.food = self.creature.food / 3
 
 
 class MoveBlock:
@@ -146,6 +149,42 @@ class MoveBlock:
         self.creature.move(self.coords, power)
 
         # print(self.position, 10)
+
+class Creature_eat_block:
+    color = "#FF0000"
+    type = "body"
+    activatable = True
+
+    def __init__(self, creature, block_position, blueprint_coords):
+        self.creature = creature
+
+        self.position = block_position
+        self.coords = blueprint_coords
+        self.y_edges = []
+        self.x_edges = []
+        self.direction = angle_measure(self.coords)
+        self.food_storage = 2500
+
+    def upkeep(self):
+        self.creature.food -= 5
+
+    def activate(self, power):
+        if power >= 1:
+            for i in range(len(self.creature.creatures.creatures_list)):
+                if self.creature.creatures.creatures_list[i].position[0] + 10 > self.creature.position[0] \
+                        > self.creature.creatures.creatures_list[i].position[0] - 10 and \
+                        self.creature.creatures.creatures_list[i].position[1] + 10 > self.creature.position[1] \
+                        > self.creature.creatures.creatures_list[i].position[1] - 10:
+                    self.creature.creatures.creatures_list[i].food -= 10
+                    self.creature.food += 10
+                    self.creature.creatures.creatures_list[i].beingattacked = True
+                    self.creature.creatures.creatures_list[i].last_attack_time = 0
+
+
+
+
+
+
 
 
 def angle_measure(coords):

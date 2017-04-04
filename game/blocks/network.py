@@ -10,8 +10,7 @@ import math
 ### Settings only changed if world has adding during life and not normal evolution
 
 
-
-class Network():
+class Network:
     def __init__(self, upper, inputs, outputs, length=3, connections=[]):
 
         ### Setting inputs and outputs of the newtork
@@ -27,7 +26,6 @@ class Network():
         self.network_creation(connections)
 
     def signal(self, current_row, inputs):
-        #print(self.neurons[current_row][0].output, current_row)
         if self.neurons[current_row][0].output:
             return inputs
         temp_input = []
@@ -35,7 +33,6 @@ class Network():
             temp_input.append(0)
 
         for i in range(len(self.neurons[current_row])):
-            #print(len(inputs),len(self.neurons[current_row]))
             single_input = self.neurons[current_row][i].input(inputs[i])
             for ii in range(len(temp_input)):
                 temp_input[ii] += single_input[ii]
@@ -66,17 +63,14 @@ class Network():
         while i > 0:
             temp_list.append([])
             for ii in range(self.size[0]):
-                #print(self.size[0],"fff")
                 temp_list[i].append(Neuron(self, temp_list[i-1], True))
             i -= 1
         even_temper_list = []
-        #print("www", len(temp_list))
         for i in range(self.size[0]):
             even_temper_list.append(Neuron(self, temp_list[self.length-2]))
         temp_list.append(even_temper_list)
 
         for i in range(len(temp_list)):
-            #print(len(temp_list[self.length-i-1]),"aaa")
             self.neurons.append(temp_list[self.length-i-1])
 
 
@@ -124,6 +118,43 @@ class Network():
                     if abs(ii.input_running_avg - running_avg_avg) / running_avg_avg < 0.1:
                         ii.change_weights()
 
+    def copy(self):
+        copy_list = []
+        for i in self.neurons:
+            for ii in i:
+                copy_list.append(ii.connection_weights)
+
+    def set_copy(self, weights, mutation=False):
+
+        for i in range(len(self.neurons)):
+            for ii in range(len(self.neurons[i])):
+                self.neurons[i][ii].set_copy_weights(weights[i + ii])
+
+        if mutation:
+            # Mutation = [output/input, position] if not false
+            # output = 1 input = 0
+            if mutation[0] == 0:
+                for i in len(range(self.neurons)):
+                    if not i == len(self.neurons):
+                        self.neurons[i].insert(mutation[1], Neuron(self, self.neurons[i+1]))
+                for i in len(range(self.neurons)):
+                    for ii in len(range(self.neurons[i])):
+                        if i != len(self.neurons):
+                            self.neurons[i][ii].connection_weights.insert(mutation[1], random.randrange(0, 200) / 100)
+
+            elif mutation[0] == 1:
+                self.neurons[-1].insert(mutation[1], Neuron(self, None, True))
+                for i in range(len(self.neurons[-2])):
+                    self.neurons[-2][i].connection_weights.insert(mutation[-2], random.randrange(0,200)/100)
+
+
+
+
+
+
+
+
+
 
 class Neuron:
     def __init__(self, network, connections, output=False, connection_weights=False):
@@ -157,7 +188,6 @@ class Neuron:
 
         if not self.output:
             for i in range(len(self.connection_weights)):
-                #print(self.connection_weights)
                 output.append(self.connection_weights[i] * input)
 
         else:

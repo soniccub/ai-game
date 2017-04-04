@@ -2,16 +2,18 @@
 import threading
 #import gc
 #gc.enable()
+pause = False
 from datetime import datetime
 
 from tkinter import *
 import world
 import creatures
 import tkinter_handler
+import pickle
 
 class Main:
 
-    def __init__(self, size=[1100, 850]):
+    def __init__(self, size=[1500, 850]):
         self.size = size
         self.root = Tk()
         self.root.bind()
@@ -19,7 +21,7 @@ class Main:
 
 
 
-        self.world_size = [800, 800]
+        self.world_size = [1500, 800]
 
 
         self.gameframe = GameFrame(self, self.root)
@@ -40,15 +42,14 @@ class Main:
 
     def tick(self):
         threads = []
-        threads.append(threading.Thread(target=self.world_update()))
+        self.world_update()
 
 
-        threads.append(threading.Thread(target=self.creature_update()))
+        self.creature_update()
 
-        threads.append(threading.Thread(target=self.draw_update()))
+        self.draw_update()
 
-        for i in threads:
-            i.start()
+
 
 
 
@@ -86,19 +87,25 @@ class GameFrame:
         self.main.root.bind('<Right>', rightKey)
         self.main.root.bind('<Up>', upKey)
         self.main.root.bind('<Down>', downKey)
+
         last_time = 0
 
+        counter = 0
         while True:
-            last_time = datetime.now()
-
-            self.frame.delete("all")
-            self.main.tick()
-            self.root.update_idletasks()
-            self.root.update()
-            print(abs(datetime.now().second + datetime.now().microsecond/100000000.0-(last_time.second+datetime.now().microsecond/100000000.0)))
-            for i in self.main.creatures.creatures_list:
-                print(i.food/i.food_level_max(), "food")
-                pass
+            if counter < 1000000:
+                last_time = datetime.now()
+                counter += 1
+                self.frame.delete("all")
+                self.main.tick()
+                self.root.update_idletasks()
+                self.root.update()
+                print(abs(datetime.now().second + datetime.now().microsecond/100000000.0-(last_time.second+datetime.now().microsecond/100000000.0)))
+            else:
+                inputs = input()
+                if inputs == "0":
+                    counter = 0
+                else:
+                    pickle.dump(main, open(str(inputs), "wb"))
 
 
     def position_on_screen(self, position, size):
@@ -114,21 +121,40 @@ class GameFrame:
 
 
 
+start = input()
+if start == "0":
+    main = Main()
+else:
+    main = pickle.load(open(str(start),"rb"))
 
-main = Main()
 
 def leftKey(event):
+    global main
 
     main.gameframe.center_screen_position[0] -= 100
-    main.creatures.creatures_list[0].direction_change(10)
+    try:
+        save = int(input())
+        if save == 0:
+            pass
+        else:
+
+            pickle.dump(main, open( str(save), "wb"))
+    except:
+        pass
 
 def rightKey(event):
+    global main
 
     main.gameframe.center_screen_position[0] += 100
+    try:
+        load = int(input())
+        if load == 0:
+            pass
+        else:
 
-
-
-
+            main = pickle.load(open(str(load), "rb"))
+    except:
+        pass
 def upKey(event):
 
     main.gameframe.center_screen_position[1] -= 100
@@ -136,5 +162,6 @@ def upKey(event):
 
 def downKey(event):
     main.gameframe.center_screen_position[1] += 100
+
 
 main.gameframe.start()

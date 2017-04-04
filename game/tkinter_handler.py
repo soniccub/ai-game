@@ -16,8 +16,6 @@ def if_on_screen(position, object_size, center_screen_position, screen_size):
 
     if (x[0] < x_edge[0] and x[1] > x_edge[1]) and (y[0] < y_edge[0] and y[1] > y_edge[1]):
         return True
-
-
     ### Checks if the extreme edges are within the x and y boundries
     return False
 

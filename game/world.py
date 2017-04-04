@@ -36,12 +36,15 @@ class World:
         self.create_food()
         print("food created")
 
-    def create_food(self):
-        for i in range(int(-self.size[0]/2),int(self.size[0]/2)):
-            for ii in range(int(-self.size[1]/2), int(self.size[1]/2)):
-                if random.randrange(1000) > 998:
-                    self.food_list.append(food.Food([i, ii],random.randrange(5000), self.frame, self))
+    def create_food(self, chance=9900):
 
+        amount = int((self.size[0] * self.size[1]) / 10)
+        for i in range(amount):
+
+            if random.randrange(10000) > chance:
+                self.food_list.append(food.Food([random.randrange(-self.size[0]/2, self.size[0]/2),
+                                                 random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(5000), self.frame, self))
+                print(len(self.food_list))
     def set_position(self, amount):
 
         for positionX in range(-int(self.size[0]/2), int(self.size[0]/2), 10):
@@ -88,8 +91,9 @@ class World:
                                                      self.main.creatures.creatures_list[ii].block_size[0],
                                                      self.main.creatures.creatures_list[ii])
 
-        self.food_list = self.new_food_list
 
+        self.food_list = self.new_food_list
+        self.create_food(9995)
     def space_near(self, creature_position):
         object_position_corners = []
         for i in range(len(self.objects)):
@@ -132,10 +136,11 @@ class World:
     def food_around(self, position):
         inputs = []
         for i in self.food_list:
-            inputs.append(i.position[0]-position[0],
+            inputs.append([i.position[0]-position[0],
                           i.position[1]-position[1],
-                          i)
-            
+                          i])
+        return inputs
+
 
 
 def vector_to_angle(self, position):

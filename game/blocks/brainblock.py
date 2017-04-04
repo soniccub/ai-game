@@ -41,6 +41,11 @@ class BrainBlock():
     def create_brain(self):
         self.brain = Brain(self.creature, self.creature.active_block_list, self.brain_size)
 
+    def copy(self, new_creature, mutation=False):
+        for i in range(len(new_creature.blocks)):
+            if new_creature.blocks[i].type == "brain":
+                new_creature.blocks[i].brain.network.set_copy(self.brain.network.copy(), mutation)
+
 
 class Brain:
     def __init__(self, creature, abilities, brain_size):
@@ -51,15 +56,15 @@ class Brain:
         self.network_length = brain_size
         self.network_create()
 
-
-
-
-
     def network_run(self, input_list):
 
 
         position_angle_list = []
         sense_list = []
+        if self.creature.beingattacked:
+            input_list.append(1)
+        else:
+            input_list.append(0)
         sensor_input = input_list
         for i in self.creature.sensors:
             sense_list.append(i.sense())
@@ -78,18 +83,20 @@ class Brain:
 
         self.creature.activate(self.network.run_network(sensor_input))
 
-
     def output(self, output):
         self.creature.activate(output)
 
-
     def network_create(self):
-        ### In order : sensors as they appear in list in order : food level : blocks in order (touch)
+        ### In order : sensors as they appear in list in order : food level : if being attacked: blocks in order (touch)
 
-        self.network = blocks.network.Network(self, 1 + len(self.creature.blocks) + len(self.creature.sensors) * self.creature.sensors[0].sense_detail, self.creature.active_block_list)
+        self.network = blocks.network.Network(self, 2 + len(self.creature.blocks) + len(self.creature.sensors) * self.creature.sensors[0].sense_detail, self.creature.active_block_list)
 
-    def copy(self, new_creature):
-        pass
+    def set_copy(self, copy, mutation):
+        self.network.set_copy(copy, mutation)
+
+
+
+
 
 
 

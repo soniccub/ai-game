@@ -15,7 +15,6 @@ class Creatures:
         self.screen_size = screen_size
 
 
-        #self.creature_create()
         self.creatures_list.append(Creature(self.frame, [0, 0], self))
         self.start_creatures()
         print("creatures Created")
@@ -28,36 +27,49 @@ class Creatures:
 
                 self.creature_creation(position)
         else:
-            for i in amount:
+            for i in range(amount):
                 position = [random.randrange(30) + position_near[0],
                             random.randrange(30) + position_near[1]]
-                self.creature_creation(position, blueprint, position_near)
+                self.creature_creation(position, blueprint, position_near, True)
 
     def tick(self):
         threads = []
         for i in self.creatures_list:
 
-            threads.append(threading.Thread(target=i.tick))
-        for i in threads:
-            i.start()
+            i.tick()
+
 
 
     def draw(self):
         for creature in self.creatures_list:
             creature.draw()
 
-    def creature_creation(self, position, blueprint=[], position_near=[]):
-        self.creatures_list.append(Creature(self.frame, position, self, blueprint, position_near))
+    def creature_creation(self, position, blueprint=[], position_near=[], copy=False):
 
+        self.creatures_list.append(Creature(self.frame, position, self, blueprint, position_near, copy))
+
+    def set_copy(self, original_creature, copy_position):
+
+
+        copy_creature = None
+        for i in range(len(self.creatures_list)):
+
+            if self.creatures_list[i].position == copy_position:
+                copy_creature = self.creatures_list[i]
+
+        for i in range(len(original_creature.blocks)):
+            if original_creature.blocks[i].type == "brain":
+                original_creature.blocks[i].copy(copy_creature)
+        copy_creature.blueprint.mutation()
+        copy_creature.food = original_creature.food
 
 
 class Creature:
-    def __init__(self, frame, position, creatures, blueprint=[], position_near=[], network=[]):
-
+    def __init__(self, frame, position, creatures, blueprint=[], position_near=[], copy=False):
+        self.last_food = 0
         self.food = 0
         self.frame = frame
         self.position = position
-        self.blueprint = blueprint
         self.block_size = [3, 3]
         self.blocks = []
         self.power_move_ratio = 1
@@ -69,23 +81,11 @@ class Creature:
         self.sense_detail = 10
         self.action_blocks = []
 
-        if len(blueprint) == 0:
-            self.blueprint = Blueprint(self)
-        self.creature_creation()
-        self.active_block_list = []
-        for i in self.blocks:
-            if i.activatable:
-                self.active_block_list.append(i)
-                #print(self.active_block_list)
-
-        self.block_edges_create()
-        for i in self.blocks:
-            if i.type == "brain":
-                i.create_brain()
-        self.food = self.food_level_max()
-        self.food_max = self.food_level_max()
-        self.last_food = 0
-
+        self.blueprint = Blueprint(self, blueprint)
+        print(self.blueprint.blocks)
+        self.blueprint.mutation()
+        self.beingattacked = False
+        self.last_attack_time = 10
 
         for i in self.blocks:
             if self.creatures.main.world.is_touching_object(i):
@@ -102,14 +102,27 @@ class Creature:
             self.active_block_list[i].activate(power_list[i])
 
     def creature_creation(self):
+        self.blocks = []
         for i in self.blueprint.blocks:
 
             coords = [i[1][0] * self.block_size[0] + self.position[0],
                       i[1][1] * self.block_size[1] + self.position[1]]
 
 
-            #print(i[1],1111)
             self.blocks.append(self.block_create(i[0], coords, i[1]))
+
+        self.active_block_list = []
+        for i in self.blocks:
+            if i.activatable:
+                self.active_block_list.append(i)
+
+        self.block_edges_create()
+        for i in self.blocks:
+            if i.type == "brain":
+                i.create_brain()
+        self.food = self.food_level_max()
+        self.food_max = self.food_level_max()
+        self.last_food = 0
 
     def block_create(self, block_str, coord, coord_on_creature):
         if block_str == "GenericBlock":
@@ -137,17 +150,15 @@ class Creature:
 
 
         elif block_str == "BrainBlock":
-            #print(coord)
             new_block = blocks.brainblock.BrainBlock(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
-
 
 
 
         elif block_str == "GeneralSensor" or block_str == "CreatureSensor" or block_str == "ObstacleSensor" or block_str == "FoodSensor":
             new_block = blocks.sensors.Sensor(self, coord, coord_on_creature, block_str, self.sense_detail)
             self.sensors.append(new_block)
-
-
+        elif block_str == "Creature_eat_block":
+            new_block = blocks.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
 
         return new_block
 
@@ -184,7 +195,7 @@ class Creature:
         return new_block
 
     def move_direction(self, position, power):
-        return math.atan(position[1]/position[0]) * 180/math.pi * power * self.turn_power_ratio
+        return angle_measure(position) * power * self.turn_power_ratio
 
     def direction_change(self, direction):
         direction_change = self.direction - direction
@@ -212,7 +223,6 @@ class Creature:
 
         for block in self.blocks:
             if block.type == "brain" or block.type == "body" or block.type == "sensor":
-                #print(1111111)
                 for i in range(4):
 
                     block.x_edges.append(math.cos(i * math.pi/2 + math.pi/4) * self.block_size[0] / math.sqrt(2) + self.position[0]
@@ -231,10 +241,7 @@ class Creature:
                  #       block.y_edges.append(0 * self.block_size[1] / math.sqrt(2) + self.position[1] + math.sin(
                   #          (block.direction - self.direction) * math.pi / 180) * self.block_size[1] * math.sqrt(block.coords[0] ** 2 + block.coords[1] ** 2))
 
-#                    #print(00,block.x_edges,block.y_edges,block.position,self.position)
-
     def position_update(self, position_change):
-        print(position_change)
         block_position_save = []
         for block in range(len(self.blocks)):
             block_position_save.append(list(self.blocks[block].position))
@@ -303,6 +310,15 @@ class Creature:
 
         return inputs
 
+    def set_copy(self, copy):
+        for i in self.blocks:
+            if i.type == "brain":
+
+                i.copy(copy, copy.blueprint.mutation())
+
+    def reproduce(self):
+        self.creatures.start_creatures(1, self.blueprint, self.position)
+
     def tick(self):
         self.last_food += 1
         if self.food > 0:
@@ -310,6 +326,10 @@ class Creature:
                 if i.type == "brain":
                     i.input(self.network_input())
                 i.upkeep()
+        print(self.food/self.food_level_max())
+        self.last_attack_time+=1
+        if self.last_attack_time > 9:
+            self.beingattacked = False
 
 
 class Blueprint:
@@ -318,25 +338,24 @@ class Blueprint:
 
         ### blueprint of creature
         ### Creature is blocks within blueprint/ if growth or vine block can grow into these blocks
-        self.name_list = ["Generic_Block", "MoveBlock", "StorageBlock", "ReproductionBlock", "MoveBlock",
-                          "GeneralSensor"]
+        self.name_list = ["GenericBlock", "MoveBlock", "StorageBlock", "ReproductionBlock",
+                          "GeneralSensor", "CreatureSensor", "ObstacleSensor","FoodSensor"]
         self.center = [0, 0]
         self.creature = creature
 
-        if len(old_print) == 0:
+        if type(old_print) == list:
 
             ### This creates a new blueprint from scratch, reserved for new creatures when creating world
 
             self.create_print()
         else:
 
-            self.old_print_change()
+            self.blocks = old_print.blocks
+
         self.vineprint = list(self.blocks)
 
     def create_print(self):
-        self.size = [3, 3]
         self.blocks = []
-        ### Takes every coord in the new 3x3 creature to be created and makes a generic block at that position
 
         self.blocks.append(["GeneralSensor", [-1, 1]])
         self.blocks.append(["GeneralSensor", [1, 1]])
@@ -364,11 +383,7 @@ class Blueprint:
                 self.new_block(i)
 
     def new_block(self, coords):
-        self.blocks.append(random.choice(self.name_list), coords)
-
-    def name_change(self, block):
-
-        block[0] = random.choice(self.name_list)
+        self.blocks.append([random.choice(self.name_list), coords])
 
     def block_edges_open(self):
         block_edges = []
@@ -392,3 +407,49 @@ class Blueprint:
 
 
         return block_edges
+
+    def mutation(self):
+        for i in range(len(self.creature.blocks)):
+            if random.randrange(100) > 98:
+                if self.creature.blocks[i].type != "brain":
+
+                    self.new_block(self.creature.blocks[i].coords)
+                    self.creature.blocks.pop(i)
+        outside_edge = []
+        for i in self.creature.blocks:
+            outside_edge.append([i.coords[0]-1,i.coords[1]-1])
+            outside_edge.append([i.coords[0]-1,i.coords[1]+1])
+            outside_edge.append([i.coords[0]+1,i.coords[1]-1])
+            outside_edge.append([i.coords[0]+1,i.coords[1]+1])
+        real_edge = []
+        for ii in outside_edge:
+            for i in self.creature.blocks:
+                if not i.coords == ii:
+                    real_edge.append(ii)
+
+        for i in real_edge:
+            if random.randrange(200) > 98:
+                self.new_block(i)
+
+        self.creature.creature_creation()
+
+
+
+def angle_measure(coords):
+    if coords[0] == 0:
+        if coords[1] > 0:
+            direction = 90
+        else:
+            direction = 270
+
+    elif coords[1] == 0:
+        if coords[0] > 0:
+            direction = 0
+        else:
+            direction = 180
+    else:
+        direction = math.atan(coords[1] / coords[0]) * 180 / math.pi
+        if coords[0] < 0:
+            direction += 180
+
+    return direction
