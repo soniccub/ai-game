@@ -37,8 +37,10 @@ class Creatures:
 
             i.tick()
             if (i.position[0] > self.main.world_size[0]/2 or i.position[0] <
-                    -self.main.world_size[0]/2) or (i.position[1] > self.main.world_size[1]/2 or i.position[1] < -self.main.world_size[1]/2):
+                    -self.main.world_size[0]/2) or (i.position[1] > self.main.world_size[1]/2 or i.position[1] < -self.main.world_size[1]/2) or i.food < 0:
                 pop_list.append(i)
+
+
 
         while len(pop_list) > 0:
             self.redo_id()
@@ -510,18 +512,16 @@ class Blueprint:
         return block_edges
 
     def mutation(self):
-        print("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
-        print(len(self.creature.blocks))
-        print(len(self.blocks))
+
         for i in range(len(self.blocks)):
             print("block:",i)
             mutation = random.randrange(100)
             print(mutation)
-            if mutation > 20:
+            if mutation > 98:
                 print("Mutation of Creature:", self.creature.id)
                 if self.blocks[i][0] != "brain":
 
-                    self.new_block(self.blocks[1])
+                    self.new_block(self.blocks[i][1])
                     self.blocks.pop(i)
             elif self.blocks[i][0] == "GrowthBlock" and random.randrange(100) > 95:
                 if random.randrange(100) > 50:
@@ -559,14 +559,14 @@ class Blueprint:
     def edges_open(self):
         outside_edge = []
         for i in self.creature.blocks:
-            outside_edge.append([i.coords[0] - 1, i.coords[1] - 1])
-            outside_edge.append([i.coords[0] - 1, i.coords[1] + 1])
-            outside_edge.append([i.coords[0] + 1, i.coords[1] - 1])
-            outside_edge.append([i.coords[0] + 1, i.coords[1] + 1])
+            outside_edge.append([i[1][0] - 1, i[1][1] - 1])
+            outside_edge.append([i[1][0] - 1, i[1][1] + 1])
+            outside_edge.append([i[1][0] + 1, i[1][1] - 1])
+            outside_edge.append([i[1][0] + 1, i[1][1] + 1])
         real_edge = []
         for ii in outside_edge:
-            for i in self.creature.blocks:
-                if not i.coords == ii:
+            for i in self.blocks:
+                if not i[1] == ii:
                     real_edge.append(ii)
         return real_edge
 

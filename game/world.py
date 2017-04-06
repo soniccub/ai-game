@@ -38,12 +38,12 @@ class World:
 
     def create_food(self, chance=9900):
 
-        amount = int((self.size[0] * self.size[1]) / 50)
+        amount = int((self.size[0] * self.size[1]) / 100)
         for i in range(amount):
 
             if random.randrange(10000) > chance:
                 self.food_list.append(food.Food([random.randrange(-self.size[0]/2, self.size[0]/2),
-                                                 random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(10000), self.frame, self))
+                                                 random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(5000), self.frame, self))
     def set_position(self, amount):
 
         for positionX in range(-int(self.size[0]/2), int(self.size[0]/2), 10):
@@ -91,7 +91,7 @@ class World:
 
 
         self.food_list = self.new_food_list
-        self.create_food(9990)
+        self.create_food(9997)
     def space_near(self, creature_position):
         object_position_corners = []
         for i in range(len(self.objects)):
