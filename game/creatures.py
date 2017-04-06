@@ -125,6 +125,7 @@ class Creature:
                 print("creature location is bad-retrying")
                 break
 
+
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
         ### The power is the strength of each activation in the list of possible activatible objects
@@ -459,16 +460,7 @@ class Blueprint:
         self.blocks.append(["GenericBlock", [1, 0]])
         self.blocks.append(["GenericBlock", [0, 1]])
 
-    def old_print_change(self):
-        change_chance = 3
-        new_block_chance = 2
-        # 2%
-        for i in self.blocks:
-            if random.randrange(100) < self.change_chance:
-                self.name_change(i)
-        for i in self.block_edges_open():
-            if random.randrange(100) < self.new_block_chance:
-                self.new_block(i)
+
 
     def new_block(self, coords):
         block = random.choice(self.name_list)
@@ -491,7 +483,7 @@ class Blueprint:
             coords.append(growth_block_list)
 
 
-
+        print("New block will be: ", block, coords)
         self.blocks.append([block, coords])
 
     def block_edges_open(self):
@@ -518,17 +510,24 @@ class Blueprint:
         return block_edges
 
     def mutation(self):
-        for i in range(len(self.creature.blocks)):
-            if random.randrange(100) > 98:
-                if self.creature.blocks[i].type != "brain":
+        print("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
+        print(len(self.creature.blocks))
+        print(len(self.blocks))
+        for i in range(len(self.blocks)):
+            print("block:",i)
+            mutation = random.randrange(100)
+            print(mutation)
+            if mutation > 20:
+                print("Mutation of Creature:", self.creature.id)
+                if self.blocks[i][0] != "brain":
 
-                    self.new_block(self.creature.blocks[i].coords)
-                    self.creature.blocks.pop(i)
-            elif self.creature.blocks[i].type == "GrowthBlock" and random.randrange(100) > 95:
+                    self.new_block(self.blocks[1])
+                    self.blocks.pop(i)
+            elif self.blocks[i][0] == "GrowthBlock" and random.randrange(100) > 95:
                 if random.randrange(100) > 50:
                     growth_edge_list = []
-                    for ii in self.creature.blocks[i].blueprint_growth:
-                        growth_edge_list.append(self.creature.blocks[i].blueprint_growth[ii][1])
+                    for ii in self.creature.blocks[i][1][2]:
+                        growth_edge_list.append(self.blocks[i][1][2][ii][1])
                     for i in range(random.randrange(4)):
                         open_edges = self.edges_open()
                         newer_block = random.choice(self.name_list)
@@ -541,9 +540,9 @@ class Blueprint:
                             counter += 1
                         if counter < 10:
                             growth_edge_list.append(edge)
-                            self.creature.blocks[i].blueprint_growth.append([newer_block, edge])
+                            self.blocks[i][1][2].append([newer_block, edge])
                 else:
-                    self.creature.blocks[i].blueprint_growth.pop(random.randrange(len(self.creature.blocks[i].blueprint_growth)))
+                    self.creature.blocks[i][1][2].pop(random.randrange(len(self.blocks[i][1][2])))
 
 
         real_edge = self.edges_open()
