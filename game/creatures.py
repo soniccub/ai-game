@@ -41,7 +41,6 @@ class Creatures:
                 pop_list.append(i)
 
 
-        print(len(pop_list),len(self.creatures_list))
         while len(pop_list) > 0:
             if len(self.creatures_list) == 0:
                 break
@@ -191,9 +190,9 @@ class Creature:
             new_block = blocks.sensors.Sensor(self, coord, coord_on_creature, block_str, self.sense_detail)
             self.sensors.append(new_block)
         elif block_str == "Creature_eat_block":
-            new_block = blocks.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
+            new_block = blocks.bodyblock.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
         elif block_str == "GrowthBlock":
-            new_block = blocks.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2], coord[2])
+            new_block = blocks.bodyblock.GrowthBlock(self, [coord[0], coord[1]], coord_on_creature, coord[2])
 
         return new_block
 

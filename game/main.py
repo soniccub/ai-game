@@ -21,7 +21,7 @@ class Main:
 
 
 
-        self.world_size = [1600, 800]
+        self.world_size = [400, 200]
 
 
         self.gameframe = GameFrame(self, self.root)
