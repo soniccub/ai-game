@@ -41,13 +41,14 @@ class Creatures:
                 pop_list.append(i)
 
 
-
+        print(len(pop_list),len(self.creatures_list))
         while len(pop_list) > 0:
+            if len(self.creatures_list) == 0:
+                break
+                input()
             self.redo_id()
             self.creatures_list.pop(pop_list[0].id)
-
-
-
+            pop_list.pop(0)
 
     def draw(self):
         for creature in self.creatures_list:
@@ -113,12 +114,10 @@ class Creature:
 
         self.sense_detail = 10
         self.action_blocks = []
-
         self.blueprint = Blueprint(self, blueprint)
         self.blueprint.mutation()
         self.beingattacked = False
         self.last_attack_time = 10
-
         for i in self.blocks:
             if self.creatures.main.world.is_touching_object(i):
                 self.creatures.start_creatures(1, self.blueprint, self.position)
@@ -126,7 +125,7 @@ class Creature:
                 self.creatures.redo_id()
                 print("creature location is bad-retrying")
                 break
-
+        self.creature_creation()
 
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
@@ -156,6 +155,7 @@ class Creature:
         self.food = self.food_level_max()
         self.food_max = self.food_level_max()
         self.last_food = 0
+
 
     def block_create(self, block_str, coord, coord_on_creature):
         if block_str == "GenericBlock":
@@ -485,7 +485,6 @@ class Blueprint:
             coords.append(growth_block_list)
 
 
-        print("New block will be: ", block, coords)
         self.blocks.append([block, coords])
 
     def block_edges_open(self):
@@ -512,17 +511,16 @@ class Blueprint:
         return block_edges
 
     def mutation(self):
+        block_to_pop = False
+        new_block = False
 
         for i in range(len(self.blocks)):
-            print("block:",i)
             mutation = random.randrange(100)
-            print(mutation)
             if mutation > 98:
                 print("Mutation of Creature:", self.creature.id)
                 if self.blocks[i][0] != "brain":
-
-                    self.new_block(self.blocks[i][1])
-                    self.blocks.pop(i)
+                    new_block = self.blocks[i][1]
+                    block_to_pop = i
             elif self.blocks[i][0] == "GrowthBlock" and random.randrange(100) > 95:
                 if random.randrange(100) > 50:
                     growth_edge_list = []
@@ -547,10 +545,12 @@ class Blueprint:
 
         real_edge = self.edges_open()
         for i in real_edge:
-            if random.randrange(200) > 98:
+            if random.randrange(2000) > 1998:
                 self.new_block(i)
-
-        self.creature.creature_creation()
+        if block_to_pop:
+            self.blocks.pop(block_to_pop)
+        if new_block:
+            self.new_block(new_block)
 
     def blueprint_add(self, block_list):
         for i in block_list:
@@ -558,7 +558,7 @@ class Blueprint:
 
     def edges_open(self):
         outside_edge = []
-        for i in self.creature.blocks:
+        for i in self.blocks:
             outside_edge.append([i[1][0] - 1, i[1][1] - 1])
             outside_edge.append([i[1][0] - 1, i[1][1] + 1])
             outside_edge.append([i[1][0] + 1, i[1][1] - 1])
