@@ -47,6 +47,8 @@ class BrainBlock():
                 new_creature.blocks[i].brain.network.set_copy(self.brain.network.copy(), mutation)
 
 
+
+
 class Brain:
     def __init__(self, creature, abilities, brain_size):
         self.creature = creature

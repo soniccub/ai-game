@@ -21,6 +21,7 @@ class GenericBlock:
     def __init__(self, creature, block_position, blueprint_coords):
         self.creature = creature
         self.position = block_position
+
         self.coords = blueprint_coords
         self.direction = angle_measure(self.coords)
         self.y_edges = []

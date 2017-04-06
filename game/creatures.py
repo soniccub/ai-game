@@ -15,7 +15,6 @@ class Creatures:
         self.screen_size = screen_size
 
 
-        self.creatures_list.append(Creature(self.frame, [0, 0], self))
         self.start_creatures()
         print("creatures Created")
 
@@ -33,10 +32,18 @@ class Creatures:
                 self.creature_creation(position, blueprint, position_near, True)
 
     def tick(self):
-        threads = []
+        pop_list = []
         for i in self.creatures_list:
 
             i.tick()
+            if (i.position[0] > self.main.world_size[0]/2 or i.position[0] <
+                    -self.main.world_size[0]/2) or (i.position[1] > self.main.world_size[1]/2 or i.position[1] < -self.main.world_size[1]/2):
+                pop_list.append(i)
+
+        while len(pop_list) > 0:
+            self.redo_id()
+            self.creatures_list.pop(pop_list[0].id)
+
 
 
 
@@ -92,7 +99,7 @@ class Creature:
         self.block_size = [3, 3]
         self.blocks = []
         self.power_move_ratio = 1
-        self.turn_power_ratio = 1/180
+        self.turn_power_ratio = 1/30
         self.creatures = creatures
         self.direction = 90
         self.sensors = []
@@ -130,6 +137,7 @@ class Creature:
 
             coords = [i[1][0] * self.block_size[0] + self.position[0],
                       i[1][1] * self.block_size[1] + self.position[1]]
+            self.direction = 0
 
 
             self.blocks.append(self.block_create(i[0], coords, i[1]))
@@ -139,7 +147,6 @@ class Creature:
             if i.activatable:
                 self.active_block_list.append(i)
 
-        self.block_edges_create()
         for i in self.blocks:
             if i.type == "brain":
                 i.create_brain()
@@ -220,11 +227,27 @@ class Creature:
         return new_block
 
     def move_direction(self, position, power):
-        return angle_measure(position) * power * self.turn_power_ratio
+        #print(angle_measure(position), position, 999999)
+        angle = angle_measure(position)
+        angle %= 360
+        angle -= 90
+        self.direction %= 360
+        #print(angle, "angle")
+        if angle > 180:
+
+            #print(((-360+angle)/180) * power * (self.turn_power_ratio * 20) , 10000000)
+            return ((angle-360)/180) * power * (self.turn_power_ratio * 20)
+        elif angle < 180:
+            #print((angle / 180) * power * (self.turn_power_ratio * 20), 2000000000)
+            return (angle / 180) * power * (self.turn_power_ratio * 20)
+
+        return 0
+
+
 
     def direction_change(self, direction):
         direction_change = self.direction - direction
-        self.direction -=direction
+        self.direction += direction
         self.direction %= 360
         for block in self.blocks:
             block.last_direction = block.direction
@@ -284,24 +307,54 @@ class Creature:
                 for block in range(len(self.blocks)):
                     self.blocks[block].position = list(block_position_save[block])
 
+
+
     def move(self, coords, power):
         self.direction_change(self.move_direction(coords, power))
+        #print(power, coords)
+        #print("LLLLL")
 
         self.position_update([math.cos(self.direction * math.pi / 180 - math.pi/2) * power * self.power_move_ratio / len(self.blocks),
-                              math.sin(self.direction * math.pi / 180 + math.pi/2) * power * self.power_move_ratio / len(self.blocks)])
+                              math.sin(self.direction * math.pi / 180 + math.pi/2 ) * power * self.power_move_ratio / len(self.blocks)])
+
+
 
     def draw(self):
 
         for block in self.blocks:
             #print(block.type, block.coords)
-
+            x_edges = []
+            y_edges = []
             if block.type == "body" or block.type == "brain" or block.type == "sensor":
+                for i in range(4):
+                    x_edges.append(
+                        math.cos(i * math.pi / 2 + math.pi / 4) * self.block_size[0] / math.sqrt(2) + self.position[0]
+                        + math.cos((block.direction - self.direction) * math.pi / 180) * self.block_size[0] * math.sqrt(
+                            block.coords[0] ** 2 + block.coords[1] ** 2))
+                    y_edges.append(
+                        math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
+                        + math.sin((block.direction - self.direction) * math.pi / 180) * self.block_size[1] * math.sqrt(
+                            block.coords[0] ** 2 + block.coords[1] ** 2))
+
+
                 edge_list = []
-                for i in range(len(block.x_edges)):
-                    edge_list.append(self.frame.coord_switch([block.x_edges[i], block.y_edges[i]]))
+                #print("-----------")
+                #print(self.position)
+                #print(block.position)
+                #print(block.coords)
+                #print(self.block_size)
+                #print(x_edges,y_edges)
+                for i in range(len(x_edges)):
+                    edge_list.append(self.frame.coord_switch([x_edges[i], y_edges[i]]))
 
             else:
                 edge_list = []
+                for i in range(4):
+
+                    block.x_edges.append(math.cos(i * math.pi/2 + math.pi/4) * self.block_size[0] / math.sqrt(2) + self.position[0]
+                        + math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
+                    block.y_edges.append(math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
+                        + math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2))
                 print("Object type not right for drawing object: ", block.type)
                 break
             new_edge_list = []
@@ -531,8 +584,14 @@ def angle_measure(coords):
         else:
             direction = 180
     else:
-        direction = math.atan(coords[1] / coords[0]) * 180 / math.pi
+        direction = abs(math.atan(coords[1] / coords[0]) * 180 / math.pi)
         if coords[0] < 0:
-            direction += 180
+            if coords[1] < 0:
 
+                direction += 180
+            else:
+                direction += 90
+
+        elif coords[1] < 0:
+            direction += 270
     return direction

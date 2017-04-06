@@ -13,7 +13,7 @@ import pickle
 
 class Main:
 
-    def __init__(self, filename="not yet saved",size=[1900, 1080]):
+    def __init__(self, filename="not yet saved",size=[1000, 800]):
         self.size = size
         self.root = Tk()
         self.root.bind()
@@ -21,7 +21,7 @@ class Main:
 
 
 
-        self.world_size = [1800, 900]
+        self.world_size = [500, 250]
 
 
         self.gameframe = GameFrame(self, self.root)

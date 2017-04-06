@@ -22,7 +22,7 @@ class Food:
                 creature.food = creature.food_max
             creature.last_food = 0
             for i in range(len(self.world.new_food_list)):
-                if self.world.new_food_list[i].position == self.position:
+                if self.world.new_food_list[i] == self:
                     self.world.new_food_list.pop(i)
                     break
 
