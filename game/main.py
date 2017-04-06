@@ -3,7 +3,7 @@ import threading
 #import gc
 #gc.enable()
 pause = False
-from datetime import datetime
+import datetime
 
 from tkinter import *
 import world
@@ -13,11 +13,11 @@ import pickle
 
 class Main:
 
-    def __init__(self, size=[1500, 850]):
+    def __init__(self, filename="not yet saved",size=[1500, 850]):
         self.size = size
         self.root = Tk()
         self.root.bind()
-
+        self.filename = filename
 
 
 
@@ -40,12 +40,12 @@ class Main:
 
 
 
-    def tick(self):
-        threads = []
-        self.world_update()
+    def tick(self, stopped):
+        if not stopped:
+            self.world_update()
 
 
-        self.creature_update()
+            self.creature_update()
 
         self.draw_update()
 
@@ -63,7 +63,10 @@ class Main:
 
     def draw_update(self):
         self.creatures.draw()
-
+        self.world.draw_objects()
+    def print_stats(self):
+        self.world.print_stats()
+        self.creatures.print_stats()
 
 
 
@@ -87,25 +90,34 @@ class GameFrame:
         self.main.root.bind('<Right>', rightKey)
         self.main.root.bind('<Up>', upKey)
         self.main.root.bind('<Down>', downKey)
+        self.main.root.bind('<l>', load)
+        self.main.root.bind('<s>', save)
+        self.main.root.bind('<p>', print_stats)
+
+
+
+
 
         last_time = 0
 
         counter = 0
         while True:
+            last_time = datetime.datetime.now()
+            self.frame.delete("all")
+            self.main.tick(True)
+            self.root.update_idletasks()
+            self.root.update()
             if counter < 1000000:
-                last_time = datetime.now()
+
                 counter += 1
-                self.frame.delete("all")
-                self.main.tick()
-                self.root.update_idletasks()
-                self.root.update()
-                print(abs(datetime.now().second + datetime.now().microsecond/100000000.0-(last_time.second+datetime.now().microsecond/100000000.0)))
+                self.main.tick(False)
+
             else:
-                inputs = input()
-                if inputs == "0":
-                    counter = 0
-                else:
-                    pickle.dump(main, open(str(inputs), "wb"))
+                self.main.tick(True)
+            new_time = datetime.datetime.now()
+            change = new_time-last_time
+            print(change.total_seconds(), counter)
+
 
 
     def position_on_screen(self, position, size):
@@ -126,35 +138,21 @@ if start == "0":
     main = Main()
 else:
     main = pickle.load(open(str(start),"rb"))
+    main.filename = start
 
 
 def leftKey(event):
     global main
 
     main.gameframe.center_screen_position[0] -= 100
-    try:
-        save = int(input())
-        if save == 0:
-            pass
-        else:
 
-            pickle.dump(main, open( str(save), "wb"))
-    except:
-        pass
 
 def rightKey(event):
     global main
 
     main.gameframe.center_screen_position[0] += 100
-    try:
-        load = int(input())
-        if load == 0:
-            pass
-        else:
 
-            main = pickle.load(open(str(load), "rb"))
-    except:
-        pass
+
 def upKey(event):
 
     main.gameframe.center_screen_position[1] -= 100
@@ -162,6 +160,35 @@ def upKey(event):
 
 def downKey(event):
     main.gameframe.center_screen_position[1] += 100
+
+def save(event):
+    try:
+        save = int(input())
+        if save == 0:
+            pass
+        else:
+
+            pickle.dump(main, open(str(save), "wb"))
+    except:
+        pass
+
+
+def load(event):
+    try:
+        loadvalue = int(input())
+        if loadvalue == 0:
+            pass
+        else:
+
+            main = pickle.load(open(str(loadvalue), "rb"))
+            main.filename = loadvalue
+    except:
+        pass
+
+
+def print_stats(event):
+    print("File name: ", main.filename)
+    main.print_stats()
 
 
 main.gameframe.start()

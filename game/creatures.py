@@ -63,6 +63,21 @@ class Creatures:
         copy_creature.blueprint.mutation()
         copy_creature.food = original_creature.food
 
+    def print_stats(self):
+        print("----------------------------------------------------------------------")
+        print("CREATURES: ", len(self.creatures_list))
+        average_age = 0
+        for i in self.creatures_list:
+            average_age += i.age
+
+        average_age /= len(self.creatures_list)
+        print("Average age is: ", average_age)
+        for i in range(len(self.creatures_list)):
+            print("----")
+            print("    Creature: ", i)
+            self.creatures_list[i].printstats()
+
+
 
 class Creature:
     def __init__(self, frame, position, creatures, blueprint=[], position_near=[], copy=False):
@@ -78,11 +93,12 @@ class Creature:
         self.direction = 90
         self.sensors = []
 
+        self.age = 0
+
         self.sense_detail = 10
         self.action_blocks = []
 
         self.blueprint = Blueprint(self, blueprint)
-        print(self.blueprint.blocks)
         self.blueprint.mutation()
         self.beingattacked = False
         self.last_attack_time = 10
@@ -93,7 +109,6 @@ class Creature:
                 del self
                 print("creature location is bad-retrying")
                 break
-        print("creature Created")
 
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
@@ -159,6 +174,8 @@ class Creature:
             self.sensors.append(new_block)
         elif block_str == "Creature_eat_block":
             new_block = blocks.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
+        elif block_str == "GrowthBlock":
+            new_block = blocks.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2], coord[2])
 
         return new_block
 
@@ -326,10 +343,20 @@ class Creature:
                 if i.type == "brain":
                     i.input(self.network_input())
                 i.upkeep()
-        print(self.food/self.food_level_max())
         self.last_attack_time+=1
         if self.last_attack_time > 9:
             self.beingattacked = False
+        self.age +=1
+    def printstats(self):
+        print("Age: ", self.age)
+        print("Food: ",self.food/self.food_level_max())
+        print("Position: ",self.position)
+        print("blueprint: ",self.blueprint.blocks)
+        for i in self.blueprint.blocks:
+            if i == "GrowthBlock":
+                print("Growth Blueprint", i.blueprint_growth)
+
+
 
 
 class Blueprint:
@@ -339,7 +366,7 @@ class Blueprint:
         ### blueprint of creature
         ### Creature is blocks within blueprint/ if growth or vine block can grow into these blocks
         self.name_list = ["GenericBlock", "MoveBlock", "StorageBlock", "ReproductionBlock",
-                          "GeneralSensor", "CreatureSensor", "ObstacleSensor","FoodSensor"]
+                          "GeneralSensor", "CreatureSensor", "ObstacleSensor","FoodSensor", "GrowthBlock"]
         self.center = [0, 0]
         self.creature = creature
 
@@ -383,7 +410,28 @@ class Blueprint:
                 self.new_block(i)
 
     def new_block(self, coords):
-        self.blocks.append([random.choice(self.name_list), coords])
+        block = random.choice(self.name_list)
+        if block == "GrowthBlock":
+            growth_block_list = []
+            growth_edge_list = []
+            for i in range(random.randrange(4)):
+                open_edges = self.edges_open()
+                newer_block = random.choice(self.name_list)
+                while newer_block == "GrowthBlock" or newer_block == "VineBlock":
+                    newer_block = random.choice(self.name_list)
+                edge = random.choice(open_edges)
+                counter = 0
+                while counter < 10 or not edge in growth_edge_list:
+                    edge = random.choice(open_edges)
+                    counter += 1
+                if counter < 10:
+                    growth_edge_list.append(edge)
+                    growth_block_list.append([newer_block, edge])
+            coords.append(growth_block_list)
+
+
+
+        self.blocks.append([block, coords])
 
     def block_edges_open(self):
         block_edges = []
@@ -415,25 +463,52 @@ class Blueprint:
 
                     self.new_block(self.creature.blocks[i].coords)
                     self.creature.blocks.pop(i)
-        outside_edge = []
-        for i in self.creature.blocks:
-            outside_edge.append([i.coords[0]-1,i.coords[1]-1])
-            outside_edge.append([i.coords[0]-1,i.coords[1]+1])
-            outside_edge.append([i.coords[0]+1,i.coords[1]-1])
-            outside_edge.append([i.coords[0]+1,i.coords[1]+1])
-        real_edge = []
-        for ii in outside_edge:
-            for i in self.creature.blocks:
-                if not i.coords == ii:
-                    real_edge.append(ii)
+            elif self.creature.blocks[i].type == "GrowthBlock" and random.randrange(100) > 95:
+                if random.randrange(100) > 50:
+                    growth_edge_list = []
+                    for ii in self.creature.blocks[i].blueprint_growth:
+                        growth_edge_list.append(self.creature.blocks[i].blueprint_growth[ii][1])
+                    for i in range(random.randrange(4)):
+                        open_edges = self.edges_open()
+                        newer_block = random.choice(self.name_list)
+                        while newer_block == "GrowthBlock" or newer_block == "VineBlock":
+                            newer_block = random.choice(self.name_list)
+                        edge = random.choice(open_edges)
+                        counter = 0
+                        while counter < 10 or not edge in growth_edge_list:
+                            edge = random.choice(open_edges)
+                            counter += 1
+                        if counter < 10:
+                            growth_edge_list.append(edge)
+                            self.creature.blocks[i].blueprint_growth.append([newer_block, edge])
+                else:
+                    self.creature.blocks[i].blueprint_growth.pop(random.randrange(len(self.creature.blocks[i].blueprint_growth)))
 
+
+        real_edge = self.edges_open()
         for i in real_edge:
             if random.randrange(200) > 98:
                 self.new_block(i)
 
         self.creature.creature_creation()
 
+    def blueprint_add(self, block_list):
+        for i in block_list:
+            self.blocks.append(i)
 
+    def edges_open(self):
+        outside_edge = []
+        for i in self.creature.blocks:
+            outside_edge.append([i.coords[0] - 1, i.coords[1] - 1])
+            outside_edge.append([i.coords[0] - 1, i.coords[1] + 1])
+            outside_edge.append([i.coords[0] + 1, i.coords[1] - 1])
+            outside_edge.append([i.coords[0] + 1, i.coords[1] + 1])
+        real_edge = []
+        for ii in outside_edge:
+            for i in self.creature.blocks:
+                if not i.coords == ii:
+                    real_edge.append(ii)
+        return real_edge
 
 def angle_measure(coords):
     if coords[0] == 0:

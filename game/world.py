@@ -44,7 +44,6 @@ class World:
             if random.randrange(10000) > chance:
                 self.food_list.append(food.Food([random.randrange(-self.size[0]/2, self.size[0]/2),
                                                  random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(5000), self.frame, self))
-                print(len(self.food_list))
     def set_position(self, amount):
 
         for positionX in range(-int(self.size[0]/2), int(self.size[0]/2), 10):
@@ -81,7 +80,6 @@ class World:
 
     def tick(self):
 
-        self.draw_objects()
         self.new_food_list = list(self.food_list)
 
         for i in range(len(self.food_list)):
@@ -140,6 +138,17 @@ class World:
                           i.position[1]-position[1],
                           i])
         return inputs
+    def print_stats(self):
+        print("----------------------------------------------")
+        print("World Stats:")
+        print("Seperate food items: ", len(self.food_list))
+        total_food = 0
+        for i in self.food_list:
+            total_food += i.amount
+        print("Total Food on ground: ",total_food)
+        print("Total objects: ", len(self.objects))
+
+
 
 
 

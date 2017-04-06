@@ -28,7 +28,7 @@ class GenericBlock:
         self.food_storage = 10000
 
     def upkeep(self):
-        self.creature.food -= 0.05
+        self.creature.food -= 15
 
     def activate(self, blank):
         pass
@@ -49,7 +49,7 @@ class StorageBlock:
         self.food_storage = 75000
 
     def upkeep(self):
-        self.creature.food -= 0.01
+        self.creature.food -= 10
 
 
 ### Vine blocks repeat a certian confirgeration of blocks over and over again, includes itself
@@ -79,22 +79,29 @@ class VineBlock:
 ### New field added to network, network must re-learn
 class GrowthBlock:
     color = "#993f6c"
-    type = "body"
+    type = "GrowthBlock"
     activatable = True
 
-    def __init__(self, creature, blueprint, block_position, blueprint_coords):
+    def __init__(self, creature, blueprint, block_position, blueprint_growth):
         self.creature = creature
         self.blueprint = blueprint
         self.position = block_position
         self.coords = block_position
         self.direction = angle_measure(self.coords)
         self.food_storage = 2500
+        self.blueprint_growth = blueprint_growth
 
         self.y_edges = []
         self.x_edges = []
 
     def upkeep(self):
-        self.creature.food -= 0.5
+        self.creature.food -= 10
+
+    def activate(self, power):
+        if power > 2:
+            if self.creature.food > self.creature.food_level_max/2:
+                self.blueprint.blueprint_add(self.blueprint_growth)
+                self.creature.food /= 3
 
 
 ### Once enough food is avialble makes a creature with blueprint of creature with it
@@ -117,7 +124,7 @@ class ReproductionBlock:
         self.x_edges = []
 
     def upkeep(self):
-        self.creature.food -= 1
+        self.creature.food -= 20
 
     def activate(self, power):
         if random.randrange(1000) > 995 and power > 2 and self.creature.food > self.creature.food_level_max()/2:
@@ -141,7 +148,7 @@ class MoveBlock:
         self.food_storage = 2500
 
     def upkeep(self):
-        self.creature.food -= 1
+        self.creature.food -= 20
 
     def activate(self, power):
         self.creature.food -= power / 2
@@ -166,7 +173,7 @@ class Creature_eat_block:
         self.food_storage = 2500
 
     def upkeep(self):
-        self.creature.food -= 5
+        self.creature.food -= 100
 
     def activate(self, power):
         if power >= 1:
