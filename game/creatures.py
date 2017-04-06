@@ -46,7 +46,7 @@ class Creatures:
 
     def creature_creation(self, position, blueprint=[], position_near=[], copy=False):
 
-        self.creatures_list.append(Creature(self.frame, position, self, blueprint, position_near, copy))
+        self.creatures_list.append(Creature(self.frame, position, self,len(self.creatures_list), blueprint, position_near, copy))
 
     def set_copy(self, original_creature, copy_position):
 
@@ -77,10 +77,14 @@ class Creatures:
             print("    Creature: ", i)
             self.creatures_list[i].printstats()
 
+    def redo_id(self):
+        for i in range(len(self.creatures_list)):
+            self.creatures_list[i].id = i
+
 
 
 class Creature:
-    def __init__(self, frame, position, creatures, blueprint=[], position_near=[], copy=False):
+    def __init__(self, frame, position, creatures, id, blueprint=[], position_near=[], copy=False):
         self.last_food = 0
         self.food = 0
         self.frame = frame
@@ -93,7 +97,10 @@ class Creature:
         self.direction = 90
         self.sensors = []
 
+        self.id = id
+
         self.age = 0
+
 
         self.sense_detail = 10
         self.action_blocks = []
@@ -106,7 +113,8 @@ class Creature:
         for i in self.blocks:
             if self.creatures.main.world.is_touching_object(i):
                 self.creatures.start_creatures(1, self.blueprint, self.position)
-                del self
+                self.creatures.creatures_list.pop(id)
+                self.creatures.redo_id()
                 print("creature location is bad-retrying")
                 break
 
