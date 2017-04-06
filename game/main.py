@@ -13,7 +13,7 @@ import pickle
 
 class Main:
 
-    def __init__(self, filename="not yet saved",size=[1500, 850]):
+    def __init__(self, filename="not yet saved",size=[1900, 1080]):
         self.size = size
         self.root = Tk()
         self.root.bind()
@@ -21,7 +21,7 @@ class Main:
 
 
 
-        self.world_size = [1500, 800]
+        self.world_size = [1800, 900]
 
 
         self.gameframe = GameFrame(self, self.root)
@@ -119,7 +119,7 @@ class GameFrame:
                 self.main.tick(True)
             new_time = datetime.datetime.now()
             change = new_time-last_time
-            print(change.total_seconds(), counter)
+            print(change.total_seconds(), self.counter)
 
 
 
