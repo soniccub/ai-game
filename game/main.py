@@ -65,6 +65,9 @@ class Main:
         self.creatures.draw()
         self.world.draw_objects()
     def print_stats(self):
+        print("Age: ", self.gameframe.counter)
+        print("Size: ", self.world_size)
+
         self.world.print_stats()
         self.creatures.print_stats()
 
@@ -100,16 +103,16 @@ class GameFrame:
 
         last_time = 0
 
-        counter = 0
+        self.counter = 0
         while True:
             last_time = datetime.datetime.now()
             self.frame.delete("all")
             self.main.tick(True)
             self.root.update_idletasks()
             self.root.update()
-            if counter < 1000000:
+            if self.counter < 1000000:
 
-                counter += 1
+                self.counter += 1
                 self.main.tick(False)
 
             else:

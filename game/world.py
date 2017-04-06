@@ -6,7 +6,7 @@ import math
 
 
 class World:
-    def __init__(self, main, size, food_amount, obstacles_amount, canvas,screen_size, food_richnes=100):
+    def __init__(self, main, size, food_amount, obstacles_amount, canvas, screen_size, food_richnes=100):
         self.possible_objects = 2
         self.frame = canvas
         ### Size of the world
