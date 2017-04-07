@@ -192,7 +192,7 @@ class Creature:
         elif block_str == "Creature_eat_block":
             new_block = blocks.bodyblock.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
         elif block_str == "GrowthBlock":
-            new_block = blocks.bodyblock.GrowthBlock(self, [coord[0], coord[1]], coord_on_creature, coord[2])
+            new_block = blocks.bodyblock.GrowthBlock(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
 
         return new_block
 
@@ -464,6 +464,7 @@ class Blueprint:
 
 
     def new_block(self, coords):
+        print("new_block")
         block = random.choice(self.name_list)
         if block == "GrowthBlock":
             growth_block_list = []
@@ -472,12 +473,14 @@ class Blueprint:
                 open_edges = self.edges_open()
                 newer_block = random.choice(self.name_list)
                 while newer_block == "GrowthBlock" or newer_block == "VineBlock":
+                    print("loop3")
                     newer_block = random.choice(self.name_list)
                 edge = random.choice(open_edges)
                 counter = 0
-                while counter < 10 or not edge in growth_edge_list:
+                while counter < 10 and edge not in growth_edge_list:
                     edge = random.choice(open_edges)
                     counter += 1
+                    print("loop4")
                 if counter < 10:
                     growth_edge_list.append(edge)
                     growth_block_list.append([newer_block, edge])
@@ -515,7 +518,7 @@ class Blueprint:
 
         for i in range(len(self.blocks)):
             mutation = random.randrange(100)
-            if mutation > 98:
+            if mutation > 0:
                 print("Mutation of Creature:", self.creature.id)
                 if self.blocks[i][0] != "brain":
                     new_block = self.blocks[i][1]
@@ -530,11 +533,13 @@ class Blueprint:
                         newer_block = random.choice(self.name_list)
                         while newer_block == "GrowthBlock" or newer_block == "VineBlock":
                             newer_block = random.choice(self.name_list)
+                            print("loop")
                         edge = random.choice(open_edges)
                         counter = 0
                         while counter < 10 or not edge in growth_edge_list:
                             edge = random.choice(open_edges)
                             counter += 1
+                            print("loop")
                         if counter < 10:
                             growth_edge_list.append(edge)
                             self.blocks[i][1][2].append([newer_block, edge])

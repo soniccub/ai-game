@@ -100,8 +100,8 @@ class GrowthBlock:
 
     def activate(self, power):
         if power > 2:
-            if self.creature.food > self.creature.food_level_max/2:
-                self.blueprint.blueprint_add(self.blueprint_growth)
+            if self.creature.food > self.creature.food_level_max()/2:
+                self.creature.blueprint.blueprint_add(self.blueprint_growth)
                 self.creature.food /= 3
 
 
