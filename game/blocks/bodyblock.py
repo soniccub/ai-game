@@ -105,7 +105,14 @@ class GrowthBlock:
                 self.creature.food /= 3
 
 
+
+
+
+
+
+
 ### Once enough food is avialble makes a creature with blueprint of creature with it
+
 ### Can create growth and vine blocks for max reproductive effect
 ### new brain_block and network, must learn
 class ReproductionBlock:
@@ -158,6 +165,33 @@ class MoveBlock:
 
         # print(self.position, 10)
 
+class Leafblock:
+    color = "#006400"
+    type = "LeafBlock"
+    activatable = False
+
+    def __init__(self, creature, blueprint, block_position):
+        self.creature = creature
+        self.blueprint = blueprint
+        self.position = block_position
+        self.coords = block_position
+        self.direction = angle_measure(self.coords)
+        self.food_storage = 5000
+
+        self.y_edges = []
+        self.x_edges = []
+
+    def upkeep(self):
+
+        self.creature.food += 200
+
+    def activate(self, power):
+        pass
+
+
+
+
+
 class Creature_eat_block:
     color = "#FF0000"
     type = "body"
@@ -174,19 +208,21 @@ class Creature_eat_block:
         self.food_storage = 2500
 
     def upkeep(self):
-        self.creature.food -= 100
+        self.creature.food -= 25
 
     def activate(self, power):
         if power >= 1:
+            self.creature.food -= 25
             for i in range(len(self.creature.creatures.creatures_list)):
                 if self.creature.creatures.creatures_list[i].position[0] + 10 > self.creature.position[0] \
                         > self.creature.creatures.creatures_list[i].position[0] - 10 and \
-                        self.creature.creatures.creatures_list[i].position[1] + 10 > self.creature.position[1] \
+                        self.creature.creatures.creatures_list[i].position[1] +10 > self.creature.position[1] \
                         > self.creature.creatures.creatures_list[i].position[1] - 10:
-                    self.creature.creatures.creatures_list[i].food -= 10
-                    self.creature.food += 10
+                    self.creature.creatures.creatures_list[i].food -= 500
+                    self.creature.food += 500
                     self.creature.creatures.creatures_list[i].beingattacked = True
                     self.creature.creatures.creatures_list[i].last_attack_time = 0
+
 
 
 

@@ -10,6 +10,8 @@ import world
 import creatures
 import tkinter_handler
 import pickle
+import time
+
 
 class Main:
 
@@ -21,7 +23,7 @@ class Main:
 
 
 
-        self.world_size = [400, 200]
+        self.world_size = [400, 400]
 
 
         self.gameframe = GameFrame(self, self.root)
@@ -104,13 +106,15 @@ class GameFrame:
         last_time = 0
 
         self.counter = 0
+
         while True:
+            time.sleep(0.5)
             last_time = datetime.datetime.now()
             self.frame.delete("all")
             self.main.tick(True)
             self.root.update_idletasks()
             self.root.update()
-            if self.counter < 1000000:
+            if self.counter < 25000:
 
                 self.counter += 1
                 self.main.tick(False)

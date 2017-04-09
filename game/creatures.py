@@ -81,6 +81,38 @@ class Creatures:
 
         average_age /= len(self.creatures_list)
         print("Average age is: ", average_age)
+
+        species_list = []
+        # [[amount, average food, average age, blueprint, id_list],[etc]]
+        for i in self.creatures_list:
+
+            is_in_list = False
+            for ii in range(len(species_list)):
+
+                if self.check_if_same(i, species_list[ii][3]):
+                    is_in_list = True
+                    species_list[ii][0] += 1
+                    species_list[ii][1] += i.food
+                    species_list[ii][2] += i.age
+                    species_list[ii][4] += i.id
+
+            if not is_in_list:
+                species_list.append([1,i.food,i.blueprint.blocks,i.id])
+
+        for i in range(len(species_list)):
+            species_list[i][1] /= species_list[i][0]
+            species_list[i][2] /= species_list[i][0]
+
+            print("thing: ", i)
+            print("amount: ", species_list[i][0])
+            print("average_food: ", species_list[i][1])
+            print("Average age: ", species_list[i][2])
+            print("Blueprint: ", species_list[i][3])
+
+
+
+
+
         for i in range(len(self.creatures_list)):
             print("----")
             print("    Creature: ", i)
@@ -89,6 +121,23 @@ class Creatures:
     def redo_id(self):
         for i in range(len(self.creatures_list)):
             self.creatures_list[i].id = i
+
+
+    def check_if_same(self, creature1, blueprint):
+        if len(creature1.blueprint.blocks) == len(blueprint.blocks):
+
+
+            for i in creature1.blueprint.blocks:
+                if i not in blueprint.blocks:
+                    return False
+            for i in blueprint.blocks:
+                if i not in creature1.blueprint.blocks:
+                    return False
+
+        else:
+            return False
+        return True
+
 
 
 
@@ -193,6 +242,11 @@ class Creature:
             new_block = blocks.bodyblock.Creature_eat_block(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
         elif block_str == "GrowthBlock":
             new_block = blocks.bodyblock.GrowthBlock(self, [coord[0], coord[1]], coord_on_creature, coord_on_creature[2])
+
+
+        elif block_str == "Leafblock":
+            new_block = blocks.bodyblock.Leafblock(self, coord, coord_on_creature)
+
 
         return new_block
 
@@ -327,7 +381,7 @@ class Creature:
             #print(block.type, block.coords)
             x_edges = []
             y_edges = []
-            if block.type == "body" or block.type == "brain" or block.type == "sensor":
+            if True:
                 for i in range(4):
                     x_edges.append(
                         math.cos(i * math.pi / 2 + math.pi / 4) * self.block_size[0] / math.sqrt(2) + self.position[0]
@@ -400,6 +454,7 @@ class Creature:
         self.creatures.start_creatures(1, self.blueprint, self.position)
 
     def tick(self):
+
         self.last_food += 1
         if self.food > 0:
             for i in self.blocks:
@@ -410,6 +465,9 @@ class Creature:
         if self.last_attack_time > 9:
             self.beingattacked = False
         self.age +=1
+        if self.food > self.food_level_max():
+            self.food = self.food_level_max()
+
     def printstats(self):
         print("Age: ", self.age)
         print("Food: ",self.food/self.food_level_max())
@@ -429,7 +487,7 @@ class Blueprint:
         ### blueprint of creature
         ### Creature is blocks within blueprint/ if growth or vine block can grow into these blocks
         self.name_list = ["GenericBlock", "MoveBlock", "StorageBlock", "ReproductionBlock",
-                          "GeneralSensor", "CreatureSensor", "ObstacleSensor","FoodSensor", "GrowthBlock"]
+                          "GeneralSensor", "CreatureSensor", "ObstacleSensor","FoodSensor", "GrowthBlock", "Leafblock"]
         self.center = [0, 0]
         self.creature = creature
 
@@ -518,11 +576,12 @@ class Blueprint:
 
         for i in range(len(self.blocks)):
             mutation = random.randrange(100)
-            if mutation > 0:
+            if mutation > 95:
                 print("Mutation of Creature:", self.creature.id)
                 if self.blocks[i][0] != "brain":
                     new_block = self.blocks[i][1]
                     block_to_pop = i
+                    break
             elif self.blocks[i][0] == "GrowthBlock" and random.randrange(100) > 95:
                 if random.randrange(100) > 50:
                     growth_edge_list = []
@@ -533,7 +592,6 @@ class Blueprint:
                         newer_block = random.choice(self.name_list)
                         while newer_block == "GrowthBlock" or newer_block == "VineBlock":
                             newer_block = random.choice(self.name_list)
-                            print("loop")
                         edge = random.choice(open_edges)
                         counter = 0
                         while counter < 10 or not edge in growth_edge_list:
@@ -543,10 +601,13 @@ class Blueprint:
                         if counter < 10:
                             growth_edge_list.append(edge)
                             self.blocks[i][1][2].append([newer_block, edge])
+                            break
                 else:
-                    self.creature.blocks[i][1][2].pop(random.randrange(len(self.blocks[i][1][2])))
-
-
+                    self.blocks[i][1][2].pop(random.randrange(len(self.blocks[i][1][2])))
+                    break
+            elif mutation < 5:
+                self.blocks.pop(random.randrange(len(self.blocks)))
+                break
         real_edge = self.edges_open()
         for i in real_edge:
             if random.randrange(2000) > 1998:
@@ -573,6 +634,7 @@ class Blueprint:
                 if not i[1] == ii:
                     real_edge.append(ii)
         return real_edge
+
 
 def angle_measure(coords):
     if coords[0] == 0:
