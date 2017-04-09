@@ -23,7 +23,7 @@ class Main:
 
 
 
-        self.world_size = [400, 400]
+        self.world_size = [1600, 800]
 
 
         self.gameframe = GameFrame(self, self.root)
@@ -108,7 +108,7 @@ class GameFrame:
         self.counter = 0
 
         while True:
-            time.sleep(0.5)
+            time.sleep(0.1)
             last_time = datetime.datetime.now()
             self.frame.delete("all")
             self.main.tick(True)

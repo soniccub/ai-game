@@ -89,7 +89,7 @@ class Creatures:
             is_in_list = False
             for ii in range(len(species_list)):
 
-                if self.check_if_same(i, species_list[ii][3]):
+                if self.check_if_same(i, species_list[ii][2]):
                     is_in_list = True
                     species_list[ii][0] += 1
                     species_list[ii][1] += i.food
@@ -97,7 +97,7 @@ class Creatures:
                     species_list[ii][4] += i.id
 
             if not is_in_list:
-                species_list.append([1,i.food,i.blueprint.blocks,i.id])
+                species_list.append([1, i.food,i.blueprint.blocks,i.id])
 
         for i in range(len(species_list)):
             species_list[i][1] /= species_list[i][0]
@@ -124,6 +124,7 @@ class Creatures:
 
 
     def check_if_same(self, creature1, blueprint):
+
         if len(creature1.blueprint.blocks) == len(blueprint.blocks):
 
 
@@ -576,13 +577,13 @@ class Blueprint:
 
         for i in range(len(self.blocks)):
             mutation = random.randrange(100)
-            if mutation > 95:
+            if mutation > 97:
                 print("Mutation of Creature:", self.creature.id)
                 if self.blocks[i][0] != "brain":
                     new_block = self.blocks[i][1]
                     block_to_pop = i
                     break
-            elif self.blocks[i][0] == "GrowthBlock" and random.randrange(100) > 95:
+            elif self.blocks[i][0] == "GrowthBlock" and random.randrange(100) > 97:
                 if random.randrange(100) > 50:
                     growth_edge_list = []
                     for ii in self.creature.blocks[i][1][2]:
@@ -605,7 +606,7 @@ class Blueprint:
                 else:
                     self.blocks[i][1][2].pop(random.randrange(len(self.blocks[i][1][2])))
                     break
-            elif mutation < 5:
+            elif mutation < 2:
                 self.blocks.pop(random.randrange(len(self.blocks)))
                 break
         real_edge = self.edges_open()

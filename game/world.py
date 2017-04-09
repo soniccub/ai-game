@@ -38,7 +38,7 @@ class World:
 
     def create_food(self, chance=9900):
 
-        amount = int((self.size[0] * self.size[1]) / 50)
+        amount = int((self.size[0] * self.size[1]) / 100)
         for i in range(amount):
 
             if random.randrange(10000) > chance:

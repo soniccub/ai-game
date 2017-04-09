@@ -11,9 +11,7 @@ class Food:
 
     def check_if_under(self, block_center, block_size, creature):
 
-        #print(block_center[0] - block_size < self.position[0] < block_center[0] + block_size and \
-         #                               block_center[1] - block_size < self.position[1] < block_center[1] + block_size)
-        # (block_center,block_size)
+
         if block_center[0] - block_size < self.position[0] < block_center[0] + block_size and \
                                         block_center[1] - block_size < self.position[1] < block_center[1] + block_size:
             creature.food += self.amount
@@ -24,6 +22,7 @@ class Food:
             for i in range(len(self.world.new_food_list)):
                 if self.world.new_food_list[i] == self:
                     self.world.new_food_list.pop(i)
+
                     break
 
 
