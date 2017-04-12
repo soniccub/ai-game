@@ -107,7 +107,7 @@ class Creatures:
                         species_list[ii][4] += i.id
 
                 if not is_in_list:
-                    species_list.append([1, i.food,i.food, i.blueprint.blocks,i.id])
+                    species_list.append([1, i.food, i.food, i.blueprint.blocks ,i.id])
 
         for i in range(len(species_list)):
             species_list[i][1] /= species_list[i][0]
@@ -135,19 +135,21 @@ class Creatures:
 
 
     def check_if_same(self, creature1, blueprint):
-
         if len(creature1.blueprint.blocks) == len(blueprint):
 
 
             for i in creature1.blueprint.blocks:
-                if i not in blueprint:
-                    return False
-            for i in blueprint:
-                if i not in creature1.blueprint.blocks:
-                    return False
+                is_in = []
+                for ii in blueprint:
+
+                    if list(i) != list(ii):
+                        is_in.append(True)
 
         else:
             return False
+        for i in is_in:
+            if not i:
+                return False
         return True
 
 
@@ -541,31 +543,7 @@ class Blueprint:
 
 
 
-    def new_block(self, coords):
-        print("new_block")
-        block = random.choice(self.name_list)
-        if block == "GrowthBlock":
-            growth_block_list = []
-            growth_edge_list = []
-            for i in range(random.randrange(4)):
-                open_edges = self.edges_open()
-                newer_block = random.choice(self.name_list)
-                while newer_block == "GrowthBlock" or newer_block == "VineBlock":
-                    print("loop3")
-                    newer_block = random.choice(self.name_list)
-                edge = random.choice(open_edges)
-                counter = 0
-                while counter < 10 and edge not in growth_edge_list:
-                    edge = random.choice(open_edges)
-                    counter += 1
-                    print("loop4")
-                if counter < 10:
-                    growth_edge_list.append(edge)
-                    growth_block_list.append([newer_block, edge])
-            coords.append(growth_block_list)
 
-
-        self.blocks.append([block, coords])
 
     def block_edges_open(self):
         block_edges = []
@@ -587,7 +565,6 @@ class Blueprint:
         block_edges = temp_edge
 
 
-        print("edges: ",block_edges)
         return block_edges
 
     def mutation(self):
@@ -599,20 +576,19 @@ class Blueprint:
             if mutation > 97:
                 print("Mutation of Creature:", self.creature.id)
                 if self.blocks[i][0] != "brain":
-                    new_block = self.blocks[i][1]
+                    self.blocks.append([random.choice(self.name_list), self.blocks[i][1]])
                     block_to_pop = i
                     break
             elif mutation == 97:
                 edges = self.edges_open()
-                self.blocks.append(random.choice(self.name_list), random.choice(edges))
+                self.blocks.append([random.choice(self.name_list), random.choice(edges)])
+                break
             elif mutation < 1:
                 self.blocks.pop(random.randrange(len(self.blocks)))
                 break
 
         if block_to_pop:
             self.blocks.pop(block_to_pop)
-        if new_block:
-            self.new_block(new_block)
 
     def blueprint_add(self, block_list):
         for i in block_list:
@@ -630,6 +606,8 @@ class Blueprint:
             for i in self.blocks:
                 if not i[1] == ii:
                     real_edge.append(ii)
+
+
         return real_edge
 
 

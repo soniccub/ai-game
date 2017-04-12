@@ -15,7 +15,7 @@ import time
 
 class Main:
 
-    def __init__(self, filename="not yet saved",size=[1800, 900]):
+    def __init__(self, filename="not yet saved",size=[1200, 700]):
         self.size = size
         self.root = Tk()
         self.root.bind()
