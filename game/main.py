@@ -23,7 +23,7 @@ class Main:
 
 
 
-        self.world_size = [1600, 800]
+        self.world_size = [1000, 500]
 
 
         self.gameframe = GameFrame(self, self.root)
@@ -114,13 +114,13 @@ class GameFrame:
             self.main.tick(True)
             self.root.update_idletasks()
             self.root.update()
-            if self.counter < 25000:
+            if self.counter < 2500:
 
                 self.counter += 1
                 self.main.tick(False)
 
             else:
-                self.main.tick(True)
+                self.counter = int(input())
             new_time = datetime.datetime.now()
             change = new_time-last_time
             print(change.total_seconds(), self.counter)
@@ -175,7 +175,7 @@ def save(event):
             pass
         else:
 
-            pickle.dump(main, open(str(save), "wb"))
+            pickle.dump(main, open(str(save), "n"))
     except:
         pass
 

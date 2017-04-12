@@ -15,10 +15,10 @@ class Creatures:
         self.screen_size = screen_size
 
 
-        self.start_creatures()
+        self.start_creatures(5, copy=False)
         print("creatures Created")
 
-    def start_creatures(self, amount=5, blueprint=[], position_near=[]):
+    def start_creatures(self, amount=2, blueprint=[], position_near=[], copy=True):
         if len(position_near) == 0:
             for i in range(amount):
                 position = [(random.randrange(self.main.world.size[0]) - self.main.world.size[0]/2) * 7 / 10,
@@ -29,11 +29,13 @@ class Creatures:
             for i in range(amount):
                 position = [random.randrange(30) + position_near[0],
                             random.randrange(30) + position_near[1]]
-                self.creature_creation(position, blueprint, position_near, True)
+                self.creature_creation(position, blueprint, position_near, copy)
 
     def tick(self):
         pop_list = []
         for i in self.creatures_list:
+
+
 
             i.tick()
             if (i.position[0] > self.main.world_size[0]/2 or i.position[0] <
@@ -50,10 +52,18 @@ class Creatures:
             pop_list.pop(0)
 
     def draw(self):
-        for creature in self.creatures_list:
-            creature.draw()
+        pop = False
+        for creature in range(len(self.creatures_list)):
+            if not self.creatures_list[creature].food == 0:
 
-    def creature_creation(self, position, blueprint=[], position_near=[], copy=False):
+                self.creatures_list[creature].draw()
+            else:
+                pop = creature
+        if pop:
+            self.creatures_list.pop(pop)
+
+
+    def creature_creation(self, position, blueprint=[], position_near=[], copy=True):
 
         self.creatures_list.append(Creature(self.frame, position, self,len(self.creatures_list), blueprint, position_near, copy))
 
@@ -69,7 +79,6 @@ class Creatures:
         for i in range(len(original_creature.blocks)):
             if original_creature.blocks[i].type == "brain":
                 original_creature.blocks[i].copy(copy_creature)
-        copy_creature.blueprint.mutation()
         copy_creature.food = original_creature.food
 
     def print_stats(self):
@@ -85,19 +94,20 @@ class Creatures:
         species_list = []
         # [[amount, average food, average age, blueprint, id_list],[etc]]
         for i in self.creatures_list:
+            if not i.food == 0:
 
-            is_in_list = False
-            for ii in range(len(species_list)):
+                is_in_list = False
+                for ii in range(len(species_list)):
 
-                if self.check_if_same(i, species_list[ii][2]):
-                    is_in_list = True
-                    species_list[ii][0] += 1
-                    species_list[ii][1] += i.food
-                    species_list[ii][2] += i.age
-                    species_list[ii][4] += i.id
+                    if self.check_if_same(i, species_list[ii][3]):
+                        is_in_list = True
+                        species_list[ii][0] += 1
+                        species_list[ii][1] += i.food
+                        species_list[ii][2] += i.age
+                        species_list[ii][4] += i.id
 
-            if not is_in_list:
-                species_list.append([1, i.food,i.blueprint.blocks,i.id])
+                if not is_in_list:
+                    species_list.append([1, i.food,i.food, i.blueprint.blocks,i.id])
 
         for i in range(len(species_list)):
             species_list[i][1] /= species_list[i][0]
@@ -114,9 +124,10 @@ class Creatures:
 
 
         for i in range(len(self.creatures_list)):
-            print("----")
-            print("    Creature: ", i)
-            self.creatures_list[i].printstats()
+            if self.creatures_list[i].food > 0:
+                print("----")
+                print("    Creature: ", i)
+                self.creatures_list[i].printstats()
 
     def redo_id(self):
         for i in range(len(self.creatures_list)):
@@ -125,13 +136,13 @@ class Creatures:
 
     def check_if_same(self, creature1, blueprint):
 
-        if len(creature1.blueprint.blocks) == len(blueprint.blocks):
+        if len(creature1.blueprint.blocks) == len(blueprint):
 
 
             for i in creature1.blueprint.blocks:
-                if i not in blueprint.blocks:
+                if i not in blueprint:
                     return False
-            for i in blueprint.blocks:
+            for i in blueprint:
                 if i not in creature1.blueprint.blocks:
                     return False
 
@@ -167,14 +178,21 @@ class Creature:
         self.blueprint.mutation()
         self.beingattacked = False
         self.last_attack_time = 10
+
+
+
+
         for i in self.blocks:
             if self.creatures.main.world.is_touching_object(i):
-                self.creatures.start_creatures(1, self.blueprint, self.position)
+                if len(position_near) != 0:
+                    self.creatures.start_creatures(1, self.blueprint, position_near, copy)
+                else:
+                    self.creatures.start_creatures(1, self.blueprint, self.position, copy)
                 self.creatures.creatures_list.pop(id)
                 self.creatures.redo_id()
                 print("creature location is bad-retrying")
                 break
-        self.creature_creation()
+        self.creature_creation(copy)
 
     def activate(self, power_list):
         ### Each run of the neural network will return a list of "powers"
@@ -182,7 +200,7 @@ class Creature:
         for i in range(len(self.active_block_list)):
             self.active_block_list[i].activate(power_list[i])
 
-    def creature_creation(self):
+    def creature_creation(self, copy):
         self.blocks = []
         for i in self.blueprint.blocks:
 
@@ -201,10 +219,13 @@ class Creature:
         for i in self.blocks:
             if i.type == "brain":
                 i.create_brain()
-        self.food = self.food_level_max()
         self.food_max = self.food_level_max()
         self.last_food = 0
 
+        if copy:
+            self.food = self.food_level_max() / 3
+        else:
+            self.food = self.food_level_max()
 
     def block_create(self, block_str, coord, coord_on_creature):
         if block_str == "GenericBlock":
@@ -368,8 +389,7 @@ class Creature:
 
     def move(self, coords, power):
         self.direction_change(self.move_direction(coords, power))
-        #print(power, coords)
-        #print("LLLLL")
+
 
         self.position_update([math.cos(self.direction * math.pi / 180 - math.pi/2) * power * self.power_move_ratio / len(self.blocks),
                               math.sin(self.direction * math.pi / 180 + math.pi/2 ) * power * self.power_move_ratio / len(self.blocks)])
@@ -434,6 +454,7 @@ class Creature:
         food_max = 0
         for block in self.blocks:
             food_max += block.food_storage
+
         return food_max
 
     def network_input(self):
@@ -472,11 +493,10 @@ class Creature:
     def printstats(self):
         print("Age: ", self.age)
         print("Food: ",self.food/self.food_level_max())
+        print("Maxfood: " , self.food_level_max(), " Food Has: ", self.food)
         print("Position: ",self.position)
         print("blueprint: ",self.blueprint.blocks)
-        for i in self.blueprint.blocks:
-            if i == "GrowthBlock":
-                print("Growth Blueprint", i.blueprint_growth)
+
 
 
 
@@ -486,9 +506,8 @@ class Blueprint:
     def __init__(self, creature, old_print=[]):
 
         ### blueprint of creature
-        ### Creature is blocks within blueprint/ if growth or vine block can grow into these blocks
         self.name_list = ["GenericBlock", "MoveBlock", "StorageBlock", "ReproductionBlock",
-                          "GeneralSensor", "CreatureSensor", "ObstacleSensor","FoodSensor", "GrowthBlock", "Leafblock"]
+                          "GeneralSensor", "CreatureSensor", "ObstacleSensor","FoodSensor", "Leafblock"]
         self.center = [0, 0]
         self.creature = creature
 
@@ -568,7 +587,7 @@ class Blueprint:
         block_edges = temp_edge
 
 
-
+        print("edges: ",block_edges)
         return block_edges
 
     def mutation(self):
@@ -583,36 +602,13 @@ class Blueprint:
                     new_block = self.blocks[i][1]
                     block_to_pop = i
                     break
-            elif self.blocks[i][0] == "GrowthBlock" and random.randrange(100) > 97:
-                if random.randrange(100) > 50:
-                    growth_edge_list = []
-                    for ii in self.creature.blocks[i][1][2]:
-                        growth_edge_list.append(self.blocks[i][1][2][ii][1])
-                    for i in range(random.randrange(4)):
-                        open_edges = self.edges_open()
-                        newer_block = random.choice(self.name_list)
-                        while newer_block == "GrowthBlock" or newer_block == "VineBlock":
-                            newer_block = random.choice(self.name_list)
-                        edge = random.choice(open_edges)
-                        counter = 0
-                        while counter < 10 or not edge in growth_edge_list:
-                            edge = random.choice(open_edges)
-                            counter += 1
-                            print("loop")
-                        if counter < 10:
-                            growth_edge_list.append(edge)
-                            self.blocks[i][1][2].append([newer_block, edge])
-                            break
-                else:
-                    self.blocks[i][1][2].pop(random.randrange(len(self.blocks[i][1][2])))
-                    break
-            elif mutation < 2:
+            elif mutation == 97:
+                edges = self.edges_open()
+                self.blocks.append(random.choice(self.name_list), random.choice(edges))
+            elif mutation < 1:
                 self.blocks.pop(random.randrange(len(self.blocks)))
                 break
-        real_edge = self.edges_open()
-        for i in real_edge:
-            if random.randrange(2000) > 1998:
-                self.new_block(i)
+
         if block_to_pop:
             self.blocks.pop(block_to_pop)
         if new_block:

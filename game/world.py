@@ -36,14 +36,14 @@ class World:
         self.create_food()
         print("food created")
 
-    def create_food(self, chance=9900):
+    def create_food(self, chance=9000):
 
         amount = int((self.size[0] * self.size[1]) / 100)
         for i in range(amount):
 
             if random.randrange(10000) > chance:
                 self.food_list.append(food.Food([random.randrange(-self.size[0]/2, self.size[0]/2),
-                                                 random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(5000), self.frame, self))
+                                                 random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(2000), self.frame, self))
     def set_position(self, amount):
 
         for positionX in range(-int(self.size[0]/2), int(self.size[0]/2), 10):
