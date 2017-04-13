@@ -36,7 +36,7 @@ class World:
         self.create_food()
         print("food created")
 
-    def create_food(self, chance=9000):
+    def create_food(self, chance=8000):
 
         amount = int((self.size[0] * self.size[1]) / 100)
         for i in range(amount):
@@ -91,7 +91,7 @@ class World:
 
 
         self.food_list = self.new_food_list
-        self.create_food(9997)
+        self.create_food(9998)
     def space_near(self, creature_position):
         object_position_corners = []
         for i in range(len(self.objects)):

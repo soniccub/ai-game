@@ -335,8 +335,7 @@ class Creature:
                 block.sense_direction += direction_change
 
 
-            block.position[0] += math.cos((block.direction - self.direction) * math.pi/180) * self.block_size[0] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
-            block.position[1] += math.sin((block.direction - self.direction) * math.pi/180) * self.block_size[1] * math.sqrt(block.coords[0]**2 + block.coords[1]**2)
+
 
             for i in range(len(block.x_edges)):
 
@@ -492,6 +491,15 @@ class Creature:
         if self.food > self.food_level_max():
             self.food = self.food_level_max()
 
+
+        for block in self.blocks:
+            block.position[0] = math.cos((block.direction - self.direction) * math.pi / 180) * self.block_size[
+                0] * math.sqrt(block.coords[0] ** 2 + block.coords[1] ** 2) + self.position[0]
+            block.position[1] = math.sin((block.direction - self.direction) * math.pi / 180) * self.block_size[
+                1] * math.sqrt(block.coords[0] ** 2 + block.coords[1] ** 2) + self.position[1]
+
+
+
     def printstats(self):
         print("Age: ", self.age)
         print("Food: ",self.food/self.food_level_max())
@@ -574,7 +582,7 @@ class Blueprint:
         for i in range(len(self.blocks)):
             mutation = random.randrange(100)
             if mutation > 97:
-                print("Mutation of Creature:", self.creature.id)
+                #print("Mutation of Creature:", self.creature.id)
                 if self.blocks[i][0] != "brain":
                     self.blocks.append([random.choice(self.name_list), self.blocks[i][1]])
                     block_to_pop = i
