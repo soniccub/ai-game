@@ -172,8 +172,7 @@ class Leafblock:
 
     def __init__(self, creature, blueprint, block_position):
         self.creature = creature
-        self.blueprint = blueprint
-        self.position = block_position
+        self.position = blueprint
         self.coords = block_position
         self.direction = angle_measure(self.coords)
         self.food_storage = 5000

@@ -26,6 +26,7 @@ class World:
         self.objects_positions = []
         self.build_world()
 
+
     def build_world(self):
         ### Builds the world
         ### Gens food obs
@@ -43,7 +44,7 @@ class World:
 
             if random.randrange(10000) > chance:
                 self.food_list.append(food.Food([random.randrange(-self.size[0]/2, self.size[0]/2),
-                                                 random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(2000), self.frame, self))
+                                                 random.randrange(-self.size[1]/2, self.size[1]/2)],random.randrange(5000), self.frame, self))
     def set_position(self, amount):
 
         for positionX in range(-int(self.size[0]/2), int(self.size[0]/2), 10):
@@ -91,7 +92,7 @@ class World:
 
 
         self.food_list = self.new_food_list
-        self.create_food(9998)
+        self.create_food(9997)
     def space_near(self, creature_position):
         object_position_corners = []
         for i in range(len(self.objects)):

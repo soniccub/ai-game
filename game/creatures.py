@@ -18,7 +18,7 @@ class Creatures:
         self.start_creatures(5, copy=False)
         print("creatures Created")
 
-    def start_creatures(self, amount=2, blueprint=[], position_near=[], copy=True):
+    def start_creatures(self, amount=5, blueprint=[], position_near=[], copy=True):
         if len(position_near) == 0:
             for i in range(amount):
                 position = [(random.randrange(self.main.world.size[0]) - self.main.world.size[0]/2) * 7 / 10,
@@ -409,6 +409,11 @@ class Creature:
                         math.cos(i * math.pi / 2 + math.pi / 4) * self.block_size[0] / math.sqrt(2) + self.position[0]
                         + math.cos((block.direction - self.direction) * math.pi / 180) * self.block_size[0] * math.sqrt(
                             block.coords[0] ** 2 + block.coords[1] ** 2))
+                    if block.coords[0] > 2 or block.coords[0] < -2:
+                        print(block.type, block.coords)
+                    if block.coords[1] > 3 or block.coords[1] < -3:
+                        print(block.type, block.coords)
+
                     y_edges.append(
                         math.sin(i * math.pi / 2 + math.pi / 4) * self.block_size[1] / math.sqrt(2) + self.position[1]
                         + math.sin((block.direction - self.direction) * math.pi / 180) * self.block_size[1] * math.sqrt(
@@ -571,6 +576,7 @@ class Blueprint:
                 if not block_edges[i] == ii[1]:
                     temp_edge.append(block_edges[i])
         block_edges = temp_edge
+        print(block_edges)
 
 
         return block_edges
