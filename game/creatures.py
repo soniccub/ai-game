@@ -460,6 +460,8 @@ class Creature:
         food_max = 0
         for block in self.blocks:
             food_max += block.food_storage
+        food_max *= 2.5
+        food_max = int(food_max)
 
         return food_max
 

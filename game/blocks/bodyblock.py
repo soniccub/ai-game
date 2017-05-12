@@ -135,7 +135,7 @@ class ReproductionBlock:
         self.creature.food -= 20
 
     def activate(self, power):
-        if random.randrange(1000) > 995 and power > 2 and self.creature.food > self.creature.food_level_max()/2:
+        if random.randrange(1000) > 750 and power > 2 and self.creature.food > self.creature.food_level_max()/2:
             self.creature.reproduce()
             self.creature.food = self.creature.food / 3
 

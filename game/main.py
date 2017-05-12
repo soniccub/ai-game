@@ -40,8 +40,6 @@ class Main:
 
 
 
-
-
     def tick(self, stopped):
         if not stopped:
             self.world_update()
